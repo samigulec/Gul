@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="fc:frame" content="vNext">
+    <meta name="base:app_id" content="">
+    <title>Şans Çarkı</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>🎰 Şans Çarkı</h1>
+            <div class="spins-left">
+                <span id="spinsCount">5</span> / 5 Hak
+            </div>
+        </header>
+
+        <main>
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="320" height="320"></canvas>
+            </div>
+
+            <button id="spinBtn" class="spin-button">
+                <span>ÇEVİR</span>
+            </button>
+        </main>
+
+        <button id="settingsBtn" class="settings-btn">⚙️ Dilimleri Düzenle</button>
+
+        <!-- Sonuç Popup -->
+        <div id="resultPopup" class="popup hidden">
+            <div class="popup-content">
+                <div class="popup-icon">🎉</div>
+                <h2>Tebrikler!</h2>
+                <p id="resultText">Kazandın: 50 Puan</p>
+                <button id="closePopup" class="close-btn">Tamam</button>
+            </div>
+        </div>
+
+        <!-- Ayarlar Popup -->
+        <div id="settingsPopup" class="popup hidden">
+            <div class="popup-content settings-content">
+                <h2>🎨 Dilim Ayarları</h2>
+                <div id="segmentsList" class="segments-list"></div>
+                <div class="settings-actions">
+                    <button id="addSegment" class="add-btn">+ Dilim Ekle</button>
+                    <button id="saveSettings" class="save-btn">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>
+

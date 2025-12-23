@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a24;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        canvas {
+            background: #0a0a0f;
+            border-radius: 20px;
+            margin: 20px;
+        }
+        .download-btn {
+            display: inline-block;
+            background: #ff6b35;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .download-btn:hover {
+            background: #e55a2b;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎰 Şans Çarkı - Icon Generator</h1>
+    
+    <h2>Icon (200x200)</h2>
+    <canvas id="iconCanvas" width="200" height="200"></canvas>
+    <br>
+    <a id="downloadIcon" class="download-btn">Download icon.png</a>
+    
+    <h2>Preview (600x400)</h2>
+    <canvas id="previewCanvas" width="600" height="400"></canvas>
+    <br>
+    <a id="downloadPreview" class="download-btn">Download preview.png</a>
+
+    <script>
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#A8E6CF', '#FF8B94', '#B8B5FF', '#DFE6E9'];
+        
+        function drawWheelIcon(ctx, centerX, centerY, radius) {
+            const segmentCount = 8;
+            const segmentAngle = (2 * Math.PI) / segmentCount;
+            
+            // Gölge
+            ctx.shadowColor = 'rgba(255, 107, 53, 0.4)';
+            ctx.shadowBlur = 20;
+            
+            // Dilimleri çiz
+            colors.forEach((color, i) => {
+                const startAngle = i * segmentAngle - Math.PI / 2;
+                const endAngle = startAngle + segmentAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#1a1a24';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+            
+            ctx.shadowBlur = 0;
+            
+            // Merkez
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 0.15, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a1a24';
+            ctx.fill();
+            ctx.strokeStyle = '#ff6b35';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 0.06, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff6b35';
+            ctx.fill();
+        }
+        
+        // Icon Canvas
+        const iconCanvas = document.getElementById('iconCanvas');
+        const iconCtx = iconCanvas.getContext('2d');
+        
+        // Background
+        iconCtx.fillStyle = '#0a0a0f';
+        iconCtx.fillRect(0, 0, 200, 200);
+        
+        // Gradient background
+        const iconGradient = iconCtx.createRadialGradient(100, 100, 0, 100, 100, 100);
+        iconGradient.addColorStop(0, '#1a1a2e');
+        iconGradient.addColorStop(1, '#0a0a0f');
+        iconCtx.fillStyle = iconGradient;
+        iconCtx.fillRect(0, 0, 200, 200);
+        
+        // Draw wheel
+        drawWheelIcon(iconCtx, 100, 100, 75);
+        
+        // Pointer
+        iconCtx.fillStyle = '#ff6b35';
+        iconCtx.beginPath();
+        iconCtx.moveTo(100, 15);
+        iconCtx.lineTo(90, 35);
+        iconCtx.lineTo(110, 35);
+        iconCtx.closePath();
+        iconCtx.fill();
+        
+        // Preview Canvas
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewCtx = previewCanvas.getContext('2d');
+        
+        // Background gradient
+        const previewGradient = previewCtx.createLinearGradient(0, 0, 600, 400);
+        previewGradient.addColorStop(0, '#0a0a0f');
+        previewGradient.addColorStop(0.5, '#1a1a2e');
+        previewGradient.addColorStop(1, '#0a0a0f');
+        previewCtx.fillStyle = previewGradient;
+        previewCtx.fillRect(0, 0, 600, 400);
+        
+        // Draw wheel
+        drawWheelIcon(previewCtx, 300, 180, 130);
+        
+        // Pointer
+        previewCtx.fillStyle = '#ff6b35';
+        previewCtx.beginPath();
+        previewCtx.moveTo(300, 35);
+        previewCtx.lineTo(280, 65);
+        previewCtx.lineTo(320, 65);
+        previewCtx.closePath();
+        previewCtx.fill();
+        
+        // Title
+        previewCtx.font = 'bold 36px SF Pro Display, -apple-system, sans-serif';
+        previewCtx.textAlign = 'center';
+        previewCtx.fillStyle = '#ffffff';
+        previewCtx.fillText('🎰 Şans Çarkı', 300, 360);
+        
+        // Subtitle
+        previewCtx.font = '18px SF Pro Display, -apple-system, sans-serif';
+        previewCtx.fillStyle = '#8b8b9e';
+        previewCtx.fillText('Günlük 5 Çevirme Hakkı', 300, 390);
+        
+        // Download functions
+        document.getElementById('downloadIcon').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = iconCanvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        document.getElementById('downloadPreview').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'preview.png';
+            link.href = previewCanvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
+
