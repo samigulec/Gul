@@ -1,27 +1,26 @@
 {
   "accountAssociation": {
-    "header": "[FARCASTER'DAN ALINACAK]",
-    "payload": "[FARCASTER'DAN ALINACAK]",
-    "signature": "[FARCASTER'DAN ALINACAK]"
+    "header": "eyJmaWQiOjI3ODA1MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweGE4ZTZmRkEyN2M1YjVDNEE2MzE2YzA3MzU3MjQzZTIwNDU3YTc0ODEifQ",
+    "payload": "eyJkb21haW4iOiJndWwtc2l4LnZlcmNlbC5hcHAifQ",
+    "signature": "xsR09z9+nOe6HeqwEPQ/JZaeo2NX6Bi8huUVBIRsb7QHnjjSXaNAIeXaxnMTVuxj9gN5JrM13XhiJ0BPEg6wbhs="
   },
   "frame": {
     "version": "1",
     "name": "Şans Çarkı",
     "subtitle": "Günlük 5 çevirme hakkı!",
-    "description": "Her gün 5 ücretsiz çevirme hakkıyla şansını dene! Çarkı çevir, puanları kazan. Dilimleri özelleştir ve eğlenceye katıl.",
-    "iconUrl": "https://[DOMAIN]/icon.png",
-    "homeUrl": "https://[DOMAIN]",
-    "imageUrl": "https://[DOMAIN]/preview.png",
-    "splashImageUrl": "https://[DOMAIN]/icon.png",
+    "description": "Her gün 5 ücretsiz çevirme hakkıyla şansını dene! Çarkı çevir, puanları kazan.",
+    "iconUrl": "https://gul-six.vercel.app/icon.png",
+    "homeUrl": "https://gul-six.vercel.app",
+    "imageUrl": "https://gul-six.vercel.app/preview.png",
+    "splashImageUrl": "https://gul-six.vercel.app/icon.png",
     "splashBackgroundColor": "#0a0a0f",
     "primaryCategory": "games",
     "tags": ["game", "arcade", "farcaster", "spin", "wheel"],
     "tagline": "Çevir ve Kazan!",
-    "heroImageUrl": "https://[DOMAIN]/preview.png",
-    "screenshotUrls": ["https://[DOMAIN]/preview.png"],
-    "ogTitle": "Şans Çarkı - Farcaster Mini App",
-    "ogDescription": "Günlük 5 ücretsiz çevirme! Şansını dene ve kazan.",
-    "ogImageUrl": "https://[DOMAIN]/preview.png"
+    "heroImageUrl": "https://gul-six.vercel.app/preview.png",
+    "screenshotUrls": ["https://gul-six.vercel.app/preview.png"],
+    "ogTitle": "Şans Çarkı",
+    "ogDescription": "Günlük 5 ücretsiz çevirme!",
+    "ogImageUrl": "https://gul-six.vercel.app/preview.png"
   }
 }
-
