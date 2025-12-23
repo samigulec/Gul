@@ -1,26 +1,26 @@
 {
   "accountAssociation": {
     "header": "eyJmaWQiOjI3ODA1MywidHlwZSI6ImF1dGgiLCJrZXkiOiIweGE4ZTZmRkEyN2M1YjVDNEE2MzE2YzA3MzU3MjQzZTIwNDU3YTc0ODEifQ",
-    "payload": "eyJkb21haW4iOiJndWwtc2l4LnZlcmNlbC5hcHAifQ",
-    "signature": "xsR09z9+nOe6HeqwEPQ/JZaeo2NX6Bi8huUVBIRsb7QHnjjSXaNAIeXaxnMTVuxj9gN5JrM13XhiJ0BPEg6wbhs="
+    "payload": "eyJkb21haW4iOiJ3d3cuc3Bpbm9uLnh5eiJ9",
+    "signature": "wWdPG2iaCCHk/0X00J7oMADGkx0WjlAerXQyUFkoqsdhxQp6yb8La13OiHl8tnyrdfkToW0jI/Bsf99ba3z6lRs="
   },
   "frame": {
     "version": "1",
     "name": "Şans Çarkı",
     "subtitle": "Günlük 5 çevirme hakkı!",
     "description": "Her gün 5 ücretsiz çevirme hakkıyla şansını dene! Çarkı çevir, puanları kazan.",
-    "iconUrl": "https://gul-six.vercel.app/icon.png",
-    "homeUrl": "https://gul-six.vercel.app",
-    "imageUrl": "https://gul-six.vercel.app/preview.png",
-    "splashImageUrl": "https://gul-six.vercel.app/icon.png",
+    "iconUrl": "https://www.spinon.xyz/icon.png",
+    "homeUrl": "https://www.spinon.xyz",
+    "imageUrl": "https://www.spinon.xyz/preview.png",
+    "splashImageUrl": "https://www.spinon.xyz/icon.png",
     "splashBackgroundColor": "#0a0a0f",
     "primaryCategory": "games",
     "tags": ["game", "arcade", "farcaster", "spin", "wheel"],
     "tagline": "Çevir ve Kazan!",
-    "heroImageUrl": "https://gul-six.vercel.app/preview.png",
-    "screenshotUrls": ["https://gul-six.vercel.app/preview.png"],
+    "heroImageUrl": "https://www.spinon.xyz/preview.png",
+    "screenshotUrls": ["https://www.spinon.xyz/preview.png"],
     "ogTitle": "Şans Çarkı",
     "ogDescription": "Günlük 5 ücretsiz çevirme!",
-    "ogImageUrl": "https://gul-six.vercel.app/preview.png"
+    "ogImageUrl": "https://www.spinon.xyz/preview.png"
   }
 }
