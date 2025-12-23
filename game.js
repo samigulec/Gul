@@ -391,7 +391,50 @@ function drawLogo() {
     ctx.fill();
 }
 
+// Favicon oluştur
+function createFavicon() {
+    const faviconCanvas = document.createElement('canvas');
+    faviconCanvas.width = 32;
+    faviconCanvas.height = 32;
+    const ctx = faviconCanvas.getContext('2d');
+    
+    const center = 16;
+    const radius = 14;
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#A8E6CF', '#FF8B94', '#B8B5FF', '#DFE6E9'];
+    const segmentAngle = (2 * Math.PI) / 8;
+    
+    colors.forEach((color, i) => {
+        const startAngle = i * segmentAngle - Math.PI / 2;
+        const endAngle = startAngle + segmentAngle;
+        
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+    });
+    
+    // Merkez
+    ctx.beginPath();
+    ctx.arc(center, center, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#1a1a24';
+    ctx.fill();
+    
+    // Pointer
+    ctx.fillStyle = '#ff6b35';
+    ctx.beginPath();
+    ctx.moveTo(center, 0);
+    ctx.lineTo(center - 4, 6);
+    ctx.lineTo(center + 4, 6);
+    ctx.closePath();
+    ctx.fill();
+    
+    document.getElementById('favicon').href = faviconCanvas.toDataURL('image/png');
+}
+
 // Başlangıç
+createFavicon();
 drawLogo();
 spinsCountEl.textContent = spinsLeft;
 if (spinsLeft === 0) {
