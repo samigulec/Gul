@@ -15,6 +15,7 @@ const defaultSegments = [
 // Preload images
 const images = {};
 let imagesLoaded = 0;
+let allImagesLoaded = false;
 
 defaultSegments.forEach(segment => {
     if (segment.img) {
@@ -22,6 +23,14 @@ defaultSegments.forEach(segment => {
         img.onload = () => {
             imagesLoaded++;
             if (imagesLoaded === defaultSegments.filter(s => s.img).length) {
+                allImagesLoaded = true;
+                drawWheel();
+            }
+        };
+        img.onerror = () => {
+            imagesLoaded++;
+            if (imagesLoaded === defaultSegments.filter(s => s.img).length) {
+                allImagesLoaded = true;
                 drawWheel();
             }
         };
@@ -29,6 +38,13 @@ defaultSegments.forEach(segment => {
         images[segment.img] = img;
     }
 });
+
+// Draw wheel after 500ms even if images haven't loaded
+setTimeout(() => {
+    if (!allImagesLoaded) {
+        drawWheel();
+    }
+}, 500);
 
 // State - Always use default segments (no customization)
 let segments = defaultSegments;
@@ -49,19 +65,19 @@ const closePopup = document.getElementById('closePopup');
 const wheelWrapper = document.getElementById('wheelWrapper');
 const soundBtn = document.getElementById('soundBtn');
 
-// Boxes animation
-const boxes = [
-    document.getElementById('box1'),
-    document.getElementById('box2'),
-    document.getElementById('box3'),
-    document.getElementById('box4'),
-    document.getElementById('box5')
-];
+// Base logo animation
+const baseLogoBox = document.querySelector('.base-logo-box');
 
-function animateBoxes() {
-    boxes.forEach(box => box.classList.remove('active'));
-    const activeBox = Math.floor(Math.random() * boxes.length);
-    boxes[activeBox].classList.add('active');
+function animateBaseLogo() {
+    if (!baseLogoBox) return;
+    baseLogoBox.style.transform = 'scale(1.2)';
+    baseLogoBox.style.borderColor = '#4285F4';
+    baseLogoBox.style.boxShadow = '0 0 30px rgba(66, 133, 244, 0.8)';
+    setTimeout(() => {
+        baseLogoBox.style.transform = '';
+        baseLogoBox.style.borderColor = '';
+        baseLogoBox.style.boxShadow = '';
+    }, 500);
 }
 
 
@@ -341,8 +357,8 @@ function finishSpin() {
     
     resultPopup.classList.remove('hidden');
 
-    // Animate boxes
-    animateBoxes();
+    // Animate base logo
+    animateBaseLogo();
 }
 
 
@@ -478,19 +494,29 @@ const adClose = document.getElementById('adClose');
 const adDots = document.querySelectorAll('.ad-dot');
 
 function showAd(index) {
+    if (!adBannerVisible) return;
+
     currentAdIndex = index;
     const ad = ads[index];
-    adImage.src = ad.image;
-    adTitle.textContent = ad.title;
-    adDesc.textContent = ad.desc;
-    adCta.textContent = ad.cta;
-    adLink.href = ad.link;
-    adBanner.classList.add('show');
-    
-    // Update dots
-    adDots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-    });
+
+    // Fade out
+    adBanner.classList.remove('show');
+
+    setTimeout(() => {
+        adImage.src = ad.image;
+        adTitle.textContent = ad.title;
+        adDesc.textContent = ad.desc;
+        adCta.textContent = ad.cta;
+        adLink.href = ad.link;
+
+        // Update dots
+        adDots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+
+        // Fade in
+        adBanner.classList.add('show');
+    }, 300);
 }
 
 function rotateAds() {
@@ -523,9 +549,17 @@ adLink.addEventListener('click', async (e) => {
     }
 });
 
-// Start ad rotation immediately
-showAd(0);
-adRotationInterval = setInterval(rotateAds, 10000);
+// Start ad rotation after delay
+setTimeout(() => {
+    adBanner.classList.add('show');
+    adImage.src = ads[0].image;
+    adTitle.textContent = ads[0].title;
+    adDesc.textContent = ads[0].desc;
+    adCta.textContent = ads[0].cta;
+    adLink.href = ads[0].link;
+    adDots[0].classList.add('active');
+    adRotationInterval = setInterval(rotateAds, 10000);
+}, 2000);
 
 adClose.addEventListener('click', (e) => {
     e.preventDefault();
@@ -539,4 +573,11 @@ adClose.addEventListener('click', (e) => {
 createFavicon();
 totalSpinsEl.textContent = totalSpins;
 
-drawWheel();
+// Draw wheel initially if images haven't triggered it yet
+if (!allImagesLoaded) {
+    setTimeout(() => {
+        if (!allImagesLoaded) {
+            drawWheel();
+        }
+    }, 100);
+}
