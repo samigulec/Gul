@@ -55,15 +55,25 @@ let soundEnabled = true;
 let winStreak = 0;
 let lossStreak = 0;
 
-// DOM Elements
-const canvas = document.getElementById('wheelCanvas');
-const ctx = canvas.getContext('2d');
-const totalSpinsEl = document.getElementById('totalSpins');
-const resultPopup = document.getElementById('resultPopup');
-const resultText = document.getElementById('resultText');
-const closePopup = document.getElementById('closePopup');
-const wheelWrapper = document.getElementById('wheelWrapper');
-const soundBtn = document.getElementById('soundBtn');
+// DOM Elements - wait for DOM to be ready
+let canvas, ctx, totalSpinsEl, resultPopup, resultText, closePopup, wheelWrapper, soundBtn;
+
+function initializeDOM() {
+    canvas = document.getElementById('wheelCanvas');
+    ctx = canvas?.getContext('2d');
+    totalSpinsEl = document.getElementById('totalSpins');
+    resultPopup = document.getElementById('resultPopup');
+    resultText = document.getElementById('resultText');
+    closePopup = document.getElementById('closePopup');
+    wheelWrapper = document.getElementById('wheelWrapper');
+    soundBtn = document.getElementById('soundBtn');
+
+    if (!canvas || !ctx) {
+        console.error('Canvas not found');
+        return false;
+    }
+    return true;
+}
 
 // Base logo animation
 const baseLogoBox = document.querySelector('.base-logo-box');
@@ -431,29 +441,7 @@ function createSparkles() {
     }
 }
 
-// Event Listeners
-wheelWrapper.addEventListener('click', spinWheel);
-wheelWrapper.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    spinWheel();
-}, { passive: false });
-
-closePopup.addEventListener('click', () => {
-    resultPopup.classList.add('hidden');
-});
-
-
-resultPopup.addEventListener('click', (e) => {
-    if (e.target === resultPopup) {
-        resultPopup.classList.add('hidden');
-    }
-});
-
-// Sound toggle
-soundBtn.addEventListener('click', () => {
-    soundEnabled = !soundEnabled;
-    soundBtn.querySelector('.nav-icon').textContent = soundEnabled ? '🔊' : '🔇';
-});
+// Event Listeners will be set up in init function
 
 // Ad Banner System
 const ads = [
@@ -483,23 +471,14 @@ const ads = [
 let currentAdIndex = 0;
 let adBannerVisible = true;
 let adRotationInterval;
-
-const adBanner = document.getElementById('adBanner');
-const adImage = document.getElementById('adImage');
-const adTitle = document.getElementById('adTitle');
-const adDesc = document.getElementById('adDesc');
-const adCta = document.getElementById('adCta');
-const adLink = document.getElementById('adLink');
-const adClose = document.getElementById('adClose');
-const adDots = document.querySelectorAll('.ad-dot');
+let adBanner, adImage, adTitle, adDesc, adCta, adLink, adClose, adDots;
 
 function showAd(index) {
-    if (!adBannerVisible) return;
+    if (!adBannerVisible || !adBanner) return;
 
     currentAdIndex = index;
     const ad = ads[index];
 
-    // Fade out
     adBanner.classList.remove('show');
 
     setTimeout(() => {
@@ -509,12 +488,10 @@ function showAd(index) {
         adCta.textContent = ad.cta;
         adLink.href = ad.link;
 
-        // Update dots
         adDots.forEach((dot, i) => {
             dot.classList.toggle('active', i === index);
         });
 
-        // Fade in
         adBanner.classList.add('show');
     }, 300);
 }
@@ -525,59 +502,100 @@ function rotateAds() {
     showAd(currentAdIndex);
 }
 
-// Dot click handlers
-adDots.forEach(dot => {
-    dot.addEventListener('click', (e) => {
+function initializeAds() {
+    adBanner = document.getElementById('adBanner');
+    adImage = document.getElementById('adImage');
+    adTitle = document.getElementById('adTitle');
+    adDesc = document.getElementById('adDesc');
+    adCta = document.getElementById('adCta');
+    adLink = document.getElementById('adLink');
+    adClose = document.getElementById('adClose');
+    adDots = document.querySelectorAll('.ad-dot');
+
+    if (!adBanner) return;
+
+    // Dot click handlers
+    adDots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const index = parseInt(dot.dataset.index);
+            showAd(index);
+
+            clearInterval(adRotationInterval);
+            adRotationInterval = setInterval(rotateAds, 10000);
+        });
+    });
+
+    // Handle ad link clicks with Farcaster SDK
+    adLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const url = ads[currentAdIndex].link;
+        try {
+            await sdk.actions.openUrl(url);
+        } catch (err) {
+            window.open(url, '_blank');
+        }
+    });
+
+    // Close button
+    adClose.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const index = parseInt(dot.dataset.index);
-        showAd(index);
-
+        adBanner.classList.remove('show');
+        adBannerVisible = false;
         clearInterval(adRotationInterval);
-        adRotationInterval = setInterval(rotateAds, 10000);
     });
-});
 
-// Handle ad link clicks with Farcaster SDK
-adLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const url = ads[currentAdIndex].link;
-    try {
-        await sdk.actions.openUrl(url);
-    } catch (err) {
-        window.open(url, '_blank');
-    }
-});
-
-// Start ad rotation after delay
-setTimeout(() => {
-    adBanner.classList.add('show');
-    adImage.src = ads[0].image;
-    adTitle.textContent = ads[0].title;
-    adDesc.textContent = ads[0].desc;
-    adCta.textContent = ads[0].cta;
-    adLink.href = ads[0].link;
-    adDots[0].classList.add('active');
-    adRotationInterval = setInterval(rotateAds, 10000);
-}, 2000);
-
-adClose.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    adBanner.classList.remove('show');
-    adBannerVisible = false;
-    clearInterval(adRotationInterval);
-});
+    // Start ad rotation after delay
+    setTimeout(() => {
+        adBanner.classList.add('show');
+        adImage.src = ads[0].image;
+        adTitle.textContent = ads[0].title;
+        adDesc.textContent = ads[0].desc;
+        adCta.textContent = ads[0].cta;
+        adLink.href = ads[0].link;
+        adDots[0].classList.add('active');
+        adRotationInterval = setInterval(rotateAds, 10000);
+    }, 2000);
+}
 
 // Initialize
-createFavicon();
-totalSpinsEl.textContent = totalSpins;
+function init() {
+    if (!initializeDOM()) {
+        setTimeout(init, 100);
+        return;
+    }
 
-// Draw wheel initially if images haven't triggered it yet
-if (!allImagesLoaded) {
-    setTimeout(() => {
-        if (!allImagesLoaded) {
-            drawWheel();
+    createFavicon();
+    totalSpinsEl.textContent = totalSpins;
+
+    // Setup event listeners
+    wheelWrapper.addEventListener('click', spinWheel);
+    closePopup.addEventListener('click', () => {
+        resultPopup.classList.add('hidden');
+    });
+    resultPopup.addEventListener('click', (e) => {
+        if (e.target === resultPopup) {
+            resultPopup.classList.add('hidden');
         }
-    }, 100);
+    });
+    soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundBtn.querySelector('.nav-icon').textContent = soundEnabled ? '🔊' : '🔇';
+        vibrate([30]);
+    });
+
+    // Draw wheel
+    drawWheel();
+
+    // Initialize ads
+    initializeAds();
+}
+
+// Start initialization when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
