@@ -506,18 +506,26 @@ adDots.forEach(dot => {
         e.stopPropagation();
         const index = parseInt(dot.dataset.index);
         showAd(index);
-        
-        // Reset rotation timer
+
         clearInterval(adRotationInterval);
         adRotationInterval = setInterval(rotateAds, 10000);
     });
 });
 
-// Start ad rotation
-setTimeout(() => {
-    showAd(0);
-    adRotationInterval = setInterval(rotateAds, 10000); // Rotate every 10 seconds
-}, 3000); // Show first ad after 3 seconds
+// Handle ad link clicks with Farcaster SDK
+adLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const url = ads[currentAdIndex].link;
+    try {
+        await sdk.actions.openUrl(url);
+    } catch (err) {
+        window.open(url, '_blank');
+    }
+});
+
+// Start ad rotation immediately
+showAd(0);
+adRotationInterval = setInterval(rotateAds, 10000);
 
 adClose.addEventListener('click', (e) => {
     e.preventDefault();
