@@ -496,23 +496,23 @@ function createSparkles() {
 
 // Pano Banner System
 const panoAds = [
-    {
+       {
+        image: 'onchaingm.png',
+        title: 'Your Daily Web3 Ritual. GM every day!',
+        cta: 'Say GM',
+        link: 'https://farcaster.xyz/miniapps/WJydZUDypPkb/onchaingm'
+    },
+   {
+        image: 'infinityname.jpg',
+        title: 'Get your unique Web3 domain name!',
+        cta: 'Get Yours',
+        link: 'https://farcaster.xyz/miniapps/v7M5NCzIgbDZ/infinityname
+    },
+  {
         image: 'superboard.png',
         title: 'Meet the new OnchainGM campaign!',
         cta: 'Join Now',
         link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
-    },
-    {
-        image: 'onchaingm.png',
-        title: 'Your Daily Web3 Ritual. GM every day!',
-        cta: 'Say GM',
-        link: 'https://onchaingm.com'
-    },
-    {
-        image: 'infinityname.jpg',
-        title: 'Get your unique Web3 domain name!',
-        cta: 'Get Yours',
-        link: 'https://infinityname.com'
     }
 ];
 
