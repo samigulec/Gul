@@ -458,121 +458,83 @@ function createSparkles() {
 
 // Event Listeners will be set up in init function
 
-// Ad Banner System
-const ads = [
-    {
-        image: 'superboard.png',
-        title: 'Superboard',
-        desc: 'Meet the new OnchainGM campaign!',
-        cta: 'Join Now',
-        link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
-    },
-    {
-        image: 'onchaingm.png',
-        title: 'OnchainGM',
-        desc: 'Your Daily Web3 Ritual. GM every day!',
-        cta: 'Say GM',
-        link: 'https://onchaingm.com/'
-    },
-    {
-        image: 'infinityname.jpg',
-        title: 'Infinity Name',
-        desc: 'Get your unique Web3 domain name!',
-        cta: 'Get Yours',
-        link: 'https://infinityname.com'
-    }
+// Pano Banner System
+const panoLinks = [
+    'https://superboard.xyz/campaigns/meet-the-new-onchaingm',
+    'https://onchaingm.com/',
+    'https://infinityname.com'
 ];
 
-let currentAdIndex = 0;
-let adBannerVisible = true;
-let adRotationInterval;
-let adBanner, adImage, adTitle, adDesc, adCta, adLink, adClose, adDots;
+let currentPanoIndex = 0;
+let panoBannerVisible = true;
+let panoRotationInterval;
+let panoBanner, panoLink, panoClose, panoDots;
 
-function showAd(index) {
-    if (!adBannerVisible || !adBanner) return;
+function showPano(index) {
+    if (!panoBannerVisible || !panoBanner) return;
 
-    currentAdIndex = index;
-    const ad = ads[index];
+    currentPanoIndex = index;
+    panoLink.href = panoLinks[index];
 
-    adBanner.classList.remove('show');
-
-    setTimeout(() => {
-        adImage.src = ad.image;
-        adTitle.textContent = ad.title;
-        adDesc.textContent = ad.desc;
-        adCta.textContent = ad.cta;
-        adLink.href = ad.link;
-
-        adDots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
-        });
-
-        adBanner.classList.add('show');
-    }, 300);
+    panoDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
 }
 
-function rotateAds() {
-    if (!adBannerVisible) return;
-    currentAdIndex = (currentAdIndex + 1) % ads.length;
-    showAd(currentAdIndex);
+function rotatePano() {
+    if (!panoBannerVisible) return;
+    currentPanoIndex = (currentPanoIndex + 1) % panoLinks.length;
+    showPano(currentPanoIndex);
 }
 
-function initializeAds() {
-    adBanner = document.getElementById('adBanner');
-    adImage = document.getElementById('adImage');
-    adTitle = document.getElementById('adTitle');
-    adDesc = document.getElementById('adDesc');
-    adCta = document.getElementById('adCta');
-    adLink = document.getElementById('adLink');
-    adClose = document.getElementById('adClose');
-    adDots = document.querySelectorAll('.ad-dot');
+function openPanoLink() {
+    const url = panoLinks[currentPanoIndex];
+    try {
+        sdk.actions.openUrl(url);
+    } catch (err) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+}
 
-    if (!adBanner) return;
+function initializePano() {
+    panoBanner = document.getElementById('adBanner');
+    panoLink = document.getElementById('adLink');
+    panoClose = document.getElementById('adClose');
+    panoDots = document.querySelectorAll('.pano-dot');
 
-    // Dot click handlers
-    adDots.forEach(dot => {
+    if (!panoBanner) return;
+
+    panoDots.forEach(dot => {
         dot.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const index = parseInt(dot.dataset.index);
-            showAd(index);
-
-            clearInterval(adRotationInterval);
-            adRotationInterval = setInterval(rotateAds, 10000);
+            showPano(index);
+            clearInterval(panoRotationInterval);
+            panoRotationInterval = setInterval(rotatePano, 8000);
         });
     });
 
-    // Handle ad link clicks with Farcaster SDK
-    adLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const url = ads[currentAdIndex].link;
-        try {
-            await sdk.actions.openUrl(url);
-        } catch (err) {
-            window.open(url, '_blank');
-        }
-    });
-
-    // Close button
-    adClose.addEventListener('click', (e) => {
+    panoLink.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        adBanner.classList.remove('show');
-        adBannerVisible = false;
-        clearInterval(adRotationInterval);
+        openPanoLink();
     });
 
-    // Start ad rotation after delay
+    panoClose.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        panoBanner.classList.remove('show');
+        panoBannerVisible = false;
+        clearInterval(panoRotationInterval);
+    });
+
     setTimeout(() => {
-        adBanner.classList.add('show');
-        adImage.src = ads[0].image;
-        adTitle.textContent = ads[0].title;
-        adDesc.textContent = ads[0].desc;
-        adCta.textContent = ads[0].cta;
-        adLink.href = ads[0].link;
-        adDots[0].classList.add('active');
-        adRotationInterval = setInterval(rotateAds, 10000);
-    }, 2000);
+        panoBanner.classList.add('show');
+        panoLink.href = panoLinks[0];
+        panoDots[0].classList.add('active');
+        panoRotationInterval = setInterval(rotatePano, 8000);
+    }, 1500);
 }
 
 // Initialize
@@ -617,8 +579,8 @@ function init() {
         drawWheel();
     }, 1000);
 
-    // Initialize ads
-    initializeAds();
+    // Initialize pano
+    initializePano();
 }
 
 // Start initialization when DOM is ready

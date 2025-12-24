@@ -57,22 +57,22 @@
             </div>
         </div>
 
-        <!-- Ad Banner -->
-        <div class="ad-banner" id="adBanner">
-            <button class="ad-close" id="adClose">×</button>
-            <a href="#" id="adLink" target="_blank" rel="noopener">
-                <img id="adImage" src="" alt="Ad">
-                <div class="ad-content">
-                    <div class="ad-title" id="adTitle">Ad Title</div>
-                    <div class="ad-desc" id="adDesc">Ad description here</div>
-                    <button class="ad-cta" id="adCta">Learn More</button>
+        <!-- Pano Banner -->
+        <div class="pano-banner" id="adBanner">
+            <a href="#" id="adLink" class="pano-link" target="_blank" rel="noopener">
+                <div class="pano-content">
+                    <div class="pano-indicators">
+                        <div class="pano-dot active" data-index="0"></div>
+                        <div class="pano-dot" data-index="1"></div>
+                        <div class="pano-dot" data-index="2"></div>
+                    </div>
                 </div>
             </a>
-            <div class="ad-indicators">
-                <div class="ad-dot active" data-index="0"></div>
-                <div class="ad-dot" data-index="1"></div>
-                <div class="ad-dot" data-index="2"></div>
-            </div>
+            <button class="pano-close" id="adClose">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
         </div>
 
         <!-- Bottom Navigation -->
