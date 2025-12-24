@@ -538,17 +538,23 @@ function initializePano() {
         });
     });
 
-    panoLink.addEventListener('click', (e) => {
+    const handleAdClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
         openPanoLink();
-    });
+    };
 
-    panoCta.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openPanoLink();
-    });
+    panoLink.addEventListener('click', handleAdClick);
+    panoLink.addEventListener('touchend', handleAdClick, { passive: false });
+
+    panoImage.addEventListener('click', handleAdClick);
+    panoImage.addEventListener('touchend', handleAdClick, { passive: false });
+
+    panoCta.addEventListener('click', handleAdClick);
+    panoCta.addEventListener('touchend', handleAdClick, { passive: false });
+
+    panoTitle.addEventListener('click', handleAdClick);
+    panoTitle.addEventListener('touchend', handleAdClick, { passive: false });
 
     panoClose.addEventListener('click', (e) => {
         e.preventDefault();
