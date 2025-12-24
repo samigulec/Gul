@@ -237,8 +237,9 @@ body {
     background: rgba(0, 82, 255, 0.35);
 }
 
-.base-logo-box svg {
+.base-logo-box img {
     filter: drop-shadow(0 1px 4px rgba(66, 133, 244, 0.4));
+    object-fit: cover;
 }
 
 /* Stats Box - Top Right */
@@ -875,7 +876,7 @@ body {
         left: 12px;
     }
 
-    .base-logo-box svg {
+    .base-logo-box img {
         width: 22px;
         height: 22px;
     }

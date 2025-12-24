@@ -543,21 +543,6 @@ function rotatePano() {
     showPano(currentPanoIndex);
 }
 
-function openPanoLink() {
-    const url = panoAds[currentPanoIndex].link;
-    const isInFrame = window.self !== window.top || window.location.href.includes('farcaster');
-
-    if (isInFrame && sdk && sdk.actions && typeof sdk.actions.openUrl === 'function') {
-        try {
-            sdk.actions.openUrl(url);
-        } catch (err) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-        }
-    } else {
-        window.open(url, '_blank', 'noopener,noreferrer');
-    }
-}
-
 function initializePano() {
     panoBanner = document.getElementById('adBanner');
     panoLink = document.getElementById('adLink');
@@ -580,24 +565,6 @@ function initializePano() {
         });
     });
 
-    const handleAdClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openPanoLink();
-    };
-
-    panoLink.addEventListener('click', handleAdClick);
-    panoLink.addEventListener('touchend', handleAdClick, { passive: false });
-
-    panoImage.addEventListener('click', handleAdClick);
-    panoImage.addEventListener('touchend', handleAdClick, { passive: false });
-
-    panoCta.addEventListener('click', handleAdClick);
-    panoCta.addEventListener('touchend', handleAdClick, { passive: false });
-
-    panoTitle.addEventListener('click', handleAdClick);
-    panoTitle.addEventListener('touchend', handleAdClick, { passive: false });
-
     panoClose.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -606,11 +573,9 @@ function initializePano() {
         clearInterval(panoRotationInterval);
     });
 
-    setTimeout(() => {
-        showPano(0);
-        panoBanner.classList.add('show');
-        panoRotationInterval = setInterval(rotatePano, 8000);
-    }, 1500);
+    showPano(0);
+    panoBanner.classList.add('show');
+    panoRotationInterval = setInterval(rotatePano, 8000);
 }
 
 // Initialize
@@ -654,26 +619,6 @@ function init() {
     setTimeout(() => {
         drawWheel();
     }, 1000);
-
-    // Base logo link handler
-    const baseLogoLink = document.getElementById('baseLogoLink');
-    if (baseLogoLink) {
-        baseLogoLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            const url = 'https://base.org';
-            const isInFrame = window.self !== window.top || window.location.href.includes('farcaster');
-
-            if (isInFrame && sdk && sdk.actions && typeof sdk.actions.openUrl === 'function') {
-                try {
-                    sdk.actions.openUrl(url);
-                } catch (err) {
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                }
-            } else {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        });
-    }
 
     // Initialize pano
     initializePano();
