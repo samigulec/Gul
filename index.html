@@ -19,6 +19,19 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Base Logo - Top Left -->
+        <a href="https://base.org" target="_blank" rel="noopener" class="base-logo-box" id="baseLogoLink">
+            <svg width="28" height="28" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z" fill="#0052FF"/>
+            </svg>
+        </a>
+
+        <!-- Stats Box - Top Right -->
+        <div class="stats-box">
+            <span class="stats-label">Spins</span>
+            <span class="stats-value" id="totalSpins">0</span>
+        </div>
+
         <!-- Wheel Area -->
         <div class="wheel-area">
             <div class="wheel-wrapper" id="wheelWrapper">
@@ -33,28 +46,6 @@
 
             <!-- Tap Hint -->
             <div class="tap-hint">Tap to spin</div>
-
-            <!-- Base Logo Box -->
-            <div class="base-logo-box">
-                <svg width="48" height="48" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z" fill="#0052FF"/>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Main Card -->
-        <div class="main-card">
-            <h2 class="card-title">LUCKY SPIN</h2>
-
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">Total Spins</div>
-                    <div class="stat-value">
-                        <span id="totalSpins">0</span>
-                        <span class="icon">🎯</span>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Pano Banner -->
@@ -67,7 +58,7 @@
                 </div>
             </a>
             <button class="pano-close" id="adClose">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
                     <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
             </button>

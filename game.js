@@ -544,6 +544,12 @@ function initializePano() {
         openPanoLink();
     });
 
+    panoCta.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openPanoLink();
+    });
+
     panoClose.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -600,6 +606,20 @@ function init() {
     setTimeout(() => {
         drawWheel();
     }, 1000);
+
+    // Base logo link handler
+    const baseLogoLink = document.getElementById('baseLogoLink');
+    if (baseLogoLink) {
+        baseLogoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = 'https://base.org';
+            try {
+                sdk.actions.openUrl(url);
+            } catch (err) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+        });
+    }
 
     // Initialize pano
     initializePano();
