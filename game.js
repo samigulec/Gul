@@ -208,47 +208,65 @@ function drawWheel(rotation = 0) {
     ctx.restore();
 }
 
-// Sound effects
+// Sound effects - reusable AudioContext for better performance
+let audioCtx = null;
+let lastTickTime = 0;
+const TICK_THROTTLE = 50;
+
+function getAudioContext() {
+    if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    return audioCtx;
+}
+
 function playTickSound() {
     if (!soundEnabled) return;
+    const now = Date.now();
+    if (now - lastTickTime < TICK_THROTTLE) return;
+    lastTickTime = now;
+
     try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        
+        const ctx = getAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
         oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
+        gainNode.connect(ctx.destination);
+
         oscillator.frequency.value = 500 + Math.random() * 300;
         oscillator.type = 'sine';
         gainNode.gain.value = 0.06;
-        
+
         oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
-        oscillator.stop(audioCtx.currentTime + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.03);
+        oscillator.stop(ctx.currentTime + 0.03);
     } catch (e) {}
 }
 
 function playWinSound() {
     if (!soundEnabled) return;
     try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getAudioContext();
         const notes = [523.25, 659.25, 783.99, 1046.50];
-        
+
         notes.forEach((freq, i) => {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
             oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
+            gainNode.connect(ctx.destination);
+
             oscillator.frequency.value = freq;
             oscillator.type = 'sine';
             gainNode.gain.value = 0.1;
-            
-            oscillator.start(audioCtx.currentTime + i * 0.1);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.2);
-            oscillator.stop(audioCtx.currentTime + i * 0.1 + 0.2);
+
+            oscillator.start(ctx.currentTime + i * 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.2);
+            oscillator.stop(ctx.currentTime + i * 0.1 + 0.2);
         });
     } catch (e) {}
 }
@@ -260,24 +278,31 @@ function vibrate(pattern = [50]) {
     }
 }
 
-// Confetti effect
+// Confetti effect - optimized
 function createConfetti() {
     const colors = ['#A8C7FA', '#4285F4', '#0066FF', '#0052FF', '#BCD4F8', '#E3F2FD'];
-    
-    for (let i = 0; i < 50; i++) {
+    const fragment = document.createDocumentFragment();
+    const confettiElements = [];
+
+    for (let i = 0; i < 30; i++) {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
-        confetti.style.animationDelay = Math.random() * 0.5 + 's';
-        confetti.style.width = (5 + Math.random() * 10) + 'px';
-        confetti.style.height = confetti.style.width;
-        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        document.body.appendChild(confetti);
-        
-        setTimeout(() => confetti.remove(), 4000);
+        const size = (5 + Math.random() * 10) + 'px';
+        confetti.style.cssText = `
+            left: ${Math.random() * 100}vw;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-duration: ${2 + Math.random() * 2}s;
+            animation-delay: ${Math.random() * 0.5}s;
+            width: ${size};
+            height: ${size};
+            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+        `;
+        fragment.appendChild(confetti);
+        confettiElements.push(confetti);
     }
+
+    document.body.appendChild(fragment);
+    setTimeout(() => confettiElements.forEach(c => c.remove()), 4000);
 }
 
 // Spin the wheel
@@ -426,34 +451,45 @@ function createFavicon() {
     document.getElementById('favicon').href = faviconCanvas.toDataURL('image/png');
 }
 
-// Sparkle effect when spinning
+// Sparkle effect when spinning - optimized
 function createSparkles() {
-    for (let i = 0; i < 12; i++) {
+    const colors = ['#A8C7FA', '#4285F4', '#0066FF'];
+    const rect = wheelWrapper.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const radius = 170;
+    const fragment = document.createDocumentFragment();
+    const sparkles = [];
+
+    for (let i = 0; i < 8; i++) {
         const sparkle = document.createElement('div');
-        sparkle.style.position = 'fixed';
-        sparkle.style.width = '6px';
-        sparkle.style.height = '6px';
-        sparkle.style.borderRadius = '50%';
-        sparkle.style.background = ['#A8C7FA', '#4285F4', '#0066FF'][Math.floor(Math.random() * 3)];
-        sparkle.style.pointerEvents = 'none';
-        sparkle.style.zIndex = '200';
+        const angle = (i / 8) * Math.PI * 2;
+        sparkle.style.cssText = `
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: ${colors[Math.floor(Math.random() * 3)]};
+            pointer-events: none;
+            z-index: 200;
+            left: ${centerX + Math.cos(angle) * radius}px;
+            top: ${centerY + Math.sin(angle) * radius}px;
+        `;
+        fragment.appendChild(sparkle);
+        sparkles.push(sparkle);
+    }
 
-        const rect = wheelWrapper.getBoundingClientRect();
-        const angle = (i / 12) * Math.PI * 2;
-        const radius = 170;
-        sparkle.style.left = (rect.left + rect.width / 2 + Math.cos(angle) * radius) + 'px';
-        sparkle.style.top = (rect.top + rect.height / 2 + Math.sin(angle) * radius) + 'px';
+    document.body.appendChild(fragment);
 
-        document.body.appendChild(sparkle);
-
+    sparkles.forEach(sparkle => {
         sparkle.animate([
             { transform: 'scale(0) translateY(0)', opacity: 1 },
-            { transform: `scale(1) translateY(-30px)`, opacity: 0 }
+            { transform: 'scale(1) translateY(-30px)', opacity: 0 }
         ], {
             duration: 800,
             easing: 'ease-out'
         }).onfinish = () => sparkle.remove();
-    }
+    });
 }
 
 // Event Listeners will be set up in init function
@@ -461,22 +497,22 @@ function createSparkles() {
 // Pano Banner System
 const panoAds = [
     {
+        image: 'superboard.png',
+        title: 'Meet the new OnchainGM campaign!',
+        cta: 'Join Now',
+        link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
+    },
+    {
         image: 'onchaingm.png',
         title: 'Your Daily Web3 Ritual. GM every day!',
         cta: 'Say GM',
-        link: 'https://farcaster.xyz/miniapps/WJydZUDypPkb/onchaingm'
+        link: 'https://onchaingm.com'
     },
     {
         image: 'infinityname.jpg',
         title: 'Get your unique Web3 domain name!',
         cta: 'Get Yours',
-        link: 'https://farcaster.xyz/miniapps/v7M5NCzIgbDZ/infinityname'
-    },
-   {
-        image: 'superboard.png',
-        title: 'Meet the new OnChainGM',
-        cta: 'Join Now',
-        link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
+        link: 'https://infinityname.com'
     }
 ];
 
@@ -509,9 +545,15 @@ function rotatePano() {
 
 function openPanoLink() {
     const url = panoAds[currentPanoIndex].link;
-    try {
-        sdk.actions.openUrl(url);
-    } catch (err) {
+    const isInFrame = window.self !== window.top || window.location.href.includes('farcaster');
+
+    if (isInFrame && sdk && sdk.actions && typeof sdk.actions.openUrl === 'function') {
+        try {
+            sdk.actions.openUrl(url);
+        } catch (err) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    } else {
         window.open(url, '_blank', 'noopener,noreferrer');
     }
 }
@@ -619,9 +661,15 @@ function init() {
         baseLogoLink.addEventListener('click', (e) => {
             e.preventDefault();
             const url = 'https://base.org';
-            try {
-                sdk.actions.openUrl(url);
-            } catch (err) {
+            const isInFrame = window.self !== window.top || window.location.href.includes('farcaster');
+
+            if (isInFrame && sdk && sdk.actions && typeof sdk.actions.openUrl === 'function') {
+                try {
+                    sdk.actions.openUrl(url);
+                } catch (err) {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
+            } else {
                 window.open(url, '_blank', 'noopener,noreferrer');
             }
         });
