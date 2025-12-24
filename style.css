@@ -687,27 +687,23 @@ body {
 /* Pano Banner */
 .pano-banner {
     position: fixed;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 85px);
     left: 50%;
     transform: translateX(-50%) translateY(150%);
     width: 92%;
-    max-width: 420px;
-    height: 52px;
-    background: linear-gradient(90deg, #0052FF 0%, #001845 50%, #0033A0 100%);
-    border-radius: 30px;
-    border: 2px solid rgba(66, 133, 244, 0.4);
-    overflow: visible;
+    max-width: 380px;
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(15, 30, 80, 0.98) 100%);
+    border-radius: 20px;
+    border: 2px solid rgba(100, 140, 200, 0.35);
+    overflow: hidden;
     z-index: 50;
     box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.08),
-        0 8px 32px rgba(0, 82, 255, 0.5),
-        0 4px 16px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 12px 40px rgba(0, 40, 120, 0.5),
+        0 4px 16px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
-    display: flex;
-    align-items: center;
 }
 
 .pano-banner.show {
@@ -717,66 +713,105 @@ body {
 }
 
 .pano-link {
-    flex: 1;
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 100%;
     text-decoration: none;
+    padding: 14px;
+    padding-right: 50px;
+    gap: 14px;
     cursor: pointer;
-    border-radius: 30px;
     transition: all 0.2s ease;
 }
 
 .pano-link:active {
-    opacity: 0.8;
+    opacity: 0.85;
+}
+
+.pano-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 14px;
+    flex-shrink: 0;
+    border: 2px solid rgba(150, 180, 220, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .pano-content {
+    flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    padding: 0 60px 0 20px;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.pano-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.35;
+    letter-spacing: 0.2px;
+}
+
+.pano-cta {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #e8f0fe 0%, #c5d8f8 100%);
+    border: none;
+    color: #1a3a6e;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(100, 150, 200, 0.3);
+}
+
+.pano-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(100, 150, 200, 0.4);
+}
+
+.pano-cta:active {
+    transform: scale(0.97);
 }
 
 .pano-indicators {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px 0 14px;
+    background: linear-gradient(180deg, transparent 0%, rgba(10, 25, 60, 0.4) 100%);
 }
 
 .pano-dot {
-    width: 48px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.25);
+    width: 32px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .pano-dot:hover {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .pano-dot.active {
-    background: rgba(168, 199, 250, 0.9);
-    box-shadow: 0 0 8px rgba(168, 199, 250, 0.6);
+    background: rgba(150, 190, 255, 0.85);
+    box-shadow: 0 0 6px rgba(150, 190, 255, 0.5);
 }
 
 .pano-close {
     position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    background: rgba(0, 0, 0, 0.35);
+    right: 10px;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(40, 60, 100, 0.6);
     border: none;
     border-radius: 50%;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
     z-index: 10;
     display: flex;
@@ -786,11 +821,11 @@ body {
 }
 
 .pano-close:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(60, 80, 120, 0.7);
 }
 
 .pano-close:active {
-    transform: translateY(-50%) scale(0.92);
+    transform: scale(0.92);
 }
 
 /* Confetti */

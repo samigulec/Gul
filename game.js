@@ -459,22 +459,42 @@ function createSparkles() {
 // Event Listeners will be set up in init function
 
 // Pano Banner System
-const panoLinks = [
-    'https://superboard.xyz/campaigns/meet-the-new-onchaingm',
-    'https://onchaingm.com/',
-    'https://infinityname.com'
+const panoAds = [
+    {
+        image: 'superboard.png',
+        title: 'Meet the new OnchainGM campaign!',
+        cta: 'Join Now',
+        link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
+    },
+    {
+        image: 'onchaingm.png',
+        title: 'Your Daily Web3 Ritual. GM every day!',
+        cta: 'Say GM',
+        link: 'https://onchaingm.com/'
+    },
+    {
+        image: 'infinityname.jpg',
+        title: 'Get your unique Web3 domain name!',
+        cta: 'Get Yours',
+        link: 'https://infinityname.com'
+    }
 ];
 
 let currentPanoIndex = 0;
 let panoBannerVisible = true;
 let panoRotationInterval;
-let panoBanner, panoLink, panoClose, panoDots;
+let panoBanner, panoLink, panoClose, panoDots, panoImage, panoTitle, panoCta;
 
 function showPano(index) {
     if (!panoBannerVisible || !panoBanner) return;
 
     currentPanoIndex = index;
-    panoLink.href = panoLinks[index];
+    const ad = panoAds[index];
+
+    panoImage.src = ad.image;
+    panoTitle.textContent = ad.title;
+    panoCta.textContent = ad.cta;
+    panoLink.href = ad.link;
 
     panoDots.forEach((dot, i) => {
         dot.classList.toggle('active', i === index);
@@ -483,12 +503,12 @@ function showPano(index) {
 
 function rotatePano() {
     if (!panoBannerVisible) return;
-    currentPanoIndex = (currentPanoIndex + 1) % panoLinks.length;
+    currentPanoIndex = (currentPanoIndex + 1) % panoAds.length;
     showPano(currentPanoIndex);
 }
 
 function openPanoLink() {
-    const url = panoLinks[currentPanoIndex];
+    const url = panoAds[currentPanoIndex].link;
     try {
         sdk.actions.openUrl(url);
     } catch (err) {
@@ -500,6 +520,9 @@ function initializePano() {
     panoBanner = document.getElementById('adBanner');
     panoLink = document.getElementById('adLink');
     panoClose = document.getElementById('adClose');
+    panoImage = document.getElementById('adImage');
+    panoTitle = document.getElementById('adTitle');
+    panoCta = document.getElementById('adCta');
     panoDots = document.querySelectorAll('.pano-dot');
 
     if (!panoBanner) return;
@@ -530,9 +553,8 @@ function initializePano() {
     });
 
     setTimeout(() => {
+        showPano(0);
         panoBanner.classList.add('show');
-        panoLink.href = panoLinks[0];
-        panoDots[0].classList.add('active');
         panoRotationInterval = setInterval(rotatePano, 8000);
     }, 1500);
 }
