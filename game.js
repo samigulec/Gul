@@ -5,11 +5,11 @@ sdk.actions.ready();
 
 // Default segments - Crypto theme with images
 const defaultSegments = [
-    { name: 'Bitcoin', color: '#1a56db', gradient: '#3b82f6', img: 'cbbtc.png' },
-    { name: 'Ethereum', color: '#1a56db', gradient: '#3b82f6', img: 'cbeth.png' },
-    { name: 'USDC', color: '#2775ca', gradient: '#60a5fa', img: 'usdc.png' },
-    { name: 'Toshi', color: '#0052ff', gradient: '#3b82f6', img: 'toshi.png' },
-    { name: 'Nothing', color: '#1e1b4b', gradient: '#312e81', img: null }
+    { name: 'Bitcoin', color: '#7c3aed', gradient: '#a855f7', img: 'cbbtc.png' },
+    { name: 'Ethereum', color: '#8b5cf6', gradient: '#c084fc', img: 'cbeth.png' },
+    { name: 'USDC', color: '#6d28d9', gradient: '#8b5cf6', img: 'usdc.png' },
+    { name: 'Toshi', color: '#7c3aed', gradient: '#a855f7', img: 'toshi.png' },
+    { name: 'Nothing', color: '#5b21b6', gradient: '#7c3aed', img: null }
 ];
 
 // Preload images
@@ -142,7 +142,7 @@ function drawWheel(rotation = 0) {
         ctx.fill();
         
         // Segment border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.strokeStyle = 'rgba(233, 213, 255, 0.4)';
         ctx.lineWidth = 2;
         ctx.stroke();
         
@@ -161,7 +161,7 @@ function drawWheel(rotation = 0) {
             // Draw X for Nothing
             ctx.save();
             ctx.translate(iconX, iconY);
-            ctx.strokeStyle = '#ff6b6b';
+            ctx.strokeStyle = '#e9d5ff';
             ctx.lineWidth = 4;
             ctx.lineCap = 'round';
             ctx.beginPath();
@@ -176,11 +176,11 @@ function drawWheel(rotation = 0) {
     
     // Outer metallic ring
     const ringGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    ringGradient.addColorStop(0, '#3b82f6');
-    ringGradient.addColorStop(0.3, '#60a5fa');
-    ringGradient.addColorStop(0.5, '#1d4ed8');
-    ringGradient.addColorStop(0.7, '#60a5fa');
-    ringGradient.addColorStop(1, '#2563eb');
+    ringGradient.addColorStop(0, '#c084fc');
+    ringGradient.addColorStop(0.3, '#e9d5ff');
+    ringGradient.addColorStop(0.5, '#a855f7');
+    ringGradient.addColorStop(0.7, '#e9d5ff');
+    ringGradient.addColorStop(1, '#c084fc');
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius + 8, 0, 2 * Math.PI);
@@ -191,7 +191,7 @@ function drawWheel(rotation = 0) {
     // Ring highlight
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius + 13, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.strokeStyle = 'rgba(233, 213, 255, 0.5)';
     ctx.lineWidth = 2;
     ctx.stroke();
     
@@ -259,7 +259,7 @@ function vibrate(pattern = [50]) {
 
 // Confetti effect
 function createConfetti() {
-    const colors = ['#a855f7', '#7c3aed', '#c084fc', '#8b5cf6', '#f472b6', '#fbbf24'];
+    const colors = ['#e9d5ff', '#c084fc', '#a855f7', '#8b5cf6', '#d8b4fe', '#f3e8ff'];
     
     for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');

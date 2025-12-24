@@ -5,15 +5,16 @@
 }
 
 :root {
-    --bg-dark: #1a0a2e;
-    --bg-card: #251447;
-    --accent-primary: #a855f7;
-    --accent-secondary: #7c3aed;
-    --accent-light: #c084fc;
+    --bg-dark: #1e0836;
+    --bg-card: #5c3b8d;
+    --accent-primary: #c084fc;
+    --accent-secondary: #a855f7;
+    --accent-light: #e9d5ff;
     --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.6);
-    --gradient-purple: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
-    --gradient-bg: linear-gradient(180deg, #2d1b4e 0%, #1a0a2e 50%, #0f0618 100%);
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+    --gradient-card: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    --gradient-bg: linear-gradient(180deg, #6d28d9 0%, #5b21b6 50%, #4c1d95 100%);
 }
 
 body {
@@ -42,10 +43,11 @@ body {
     justify-content: center;
     padding: 20px;
     padding-top: env(safe-area-inset-top, 40px);
-    background: 
-        radial-gradient(ellipse at 50% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.2) 0%, transparent 40%),
-        radial-gradient(ellipse at 80% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 40%);
+    background:
+        radial-gradient(ellipse at 50% 30%, rgba(192, 132, 252, 0.4) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(233, 213, 255, 0.2) 0%, transparent 50%),
+        var(--gradient-bg);
     position: relative;
 }
 
@@ -90,7 +92,7 @@ body {
 }
 
 .wheel-wrapper.spinning #wheelCanvas {
-    filter: drop-shadow(0 15px 40px rgba(168, 85, 247, 0.5));
+    filter: drop-shadow(0 15px 40px rgba(192, 132, 252, 0.8));
 }
 
 .wheel-center {
@@ -100,14 +102,14 @@ body {
     transform: translate(-50%, -50%);
     width: 70px;
     height: 70px;
-    background: linear-gradient(145deg, #3d2b5e 0%, #1a0a2e 100%);
+    background: linear-gradient(145deg, #5b21b6 0%, #4c1d95 100%);
     border-radius: 50%;
-    border: 4px solid var(--accent-light);
-    box-shadow: 
-        0 0 30px rgba(192, 132, 252, 0.6),
-        0 0 60px rgba(168, 85, 247, 0.3),
+    border: 4px solid #c084fc;
+    box-shadow:
+        0 0 40px rgba(192, 132, 252, 0.8),
+        0 0 80px rgba(168, 85, 247, 0.5),
         inset 0 4px 15px rgba(0, 0, 0, 0.6),
-        inset 0 -2px 10px rgba(192, 132, 252, 0.2);
+        inset 0 -2px 10px rgba(192, 132, 252, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,8 +144,8 @@ body {
     height: 0;
     border-left: 18px solid transparent;
     border-right: 18px solid transparent;
-    border-top: 35px solid #ffffff;
-    filter: drop-shadow(0 4px 15px rgba(168, 85, 247, 0.8));
+    border-top: 35px solid #e9d5ff;
+    filter: drop-shadow(0 4px 15px rgba(233, 213, 255, 0.9));
 }
 
 .wheel-pointer::after {
@@ -156,7 +158,7 @@ body {
     height: 0;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
-    border-top: 24px solid var(--accent-light);
+    border-top: 24px solid #c084fc;
 }
 
 /* Decorative Diamonds */
@@ -169,26 +171,30 @@ body {
 .diamond {
     width: 40px;
     height: 40px;
-    border: 2px solid var(--accent-light);
-    border-radius: 8px;
+    border: 3px solid rgba(233, 213, 255, 0.4);
+    border-radius: 10px;
     transform: rotate(45deg);
-    opacity: 0.6;
+    opacity: 0.5;
     transition: all 0.3s ease;
+    background: rgba(192, 132, 252, 0.1);
 }
 
 .diamond.active {
-    background: var(--accent-primary);
+    background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 100%);
+    border-color: #e9d5ff;
     opacity: 1;
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+    box-shadow: 0 0 25px rgba(233, 213, 255, 0.8);
 }
 
 /* Main Card */
 .main-card {
-    background: var(--bg-card);
-    border-radius: 24px 24px 0 0;
-    padding: 24px 20px;
+    background: var(--gradient-card);
+    border-radius: 28px 28px 0 0;
+    padding: 28px 24px;
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(192, 132, 252, 0.3);
+    border-bottom: none;
+    box-shadow: 0 -10px 40px rgba(109, 40, 217, 0.3);
 }
 
 .card-title {
@@ -212,19 +218,22 @@ body {
 }
 
 .stat-box {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 16px;
+    background: rgba(192, 132, 252, 0.15);
+    border: 2px solid rgba(233, 213, 255, 0.3);
+    border-radius: 20px;
+    padding: 20px 16px;
     text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 .stat-value {
@@ -259,19 +268,19 @@ body {
 /* Spin Button */
 .spin-btn {
     width: 100%;
-    height: 56px;
+    height: 60px;
     border: none;
-    border-radius: 16px;
-    background: var(--gradient-purple);
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 100%);
+    color: #4c1d95;
+    font-size: 1.2rem;
+    font-weight: 800;
     letter-spacing: 2px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 10px 30px rgba(192, 132, 252, 0.6);
 }
 
 .spin-btn:active {
@@ -315,9 +324,9 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(26, 10, 46, 0.95);
+    background: rgba(76, 29, 149, 0.95);
     backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 2px solid rgba(192, 132, 252, 0.3);
     padding: 12px 0;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     display: flex;
@@ -371,13 +380,14 @@ body {
 }
 
 .popup-content {
-    background: linear-gradient(180deg, #2d1b4e 0%, #1a0a2e 100%);
-    border-radius: 24px;
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+    border-radius: 28px;
     padding: 40px 30px;
     text-align: center;
     max-width: 320px;
     width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(233, 213, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -532,12 +542,12 @@ body {
     bottom: 240px;
     right: 15px;
     width: 260px;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(192, 132, 252, 0.3);
     overflow: hidden;
     z-index: 90;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 40px rgba(109, 40, 217, 0.5);
     animation: slideIn 0.5s ease;
     display: none;
 }
@@ -628,7 +638,7 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 8px 0 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(91, 33, 182, 0.3);
 }
 
 .ad-dot {
