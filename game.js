@@ -461,12 +461,6 @@ function createSparkles() {
 // Pano Banner System
 const panoAds = [
     {
-        image: 'superboard.png',
-        title: 'Meet the new OnchainGM campaign!',
-        cta: 'Join Now',
-        link: 'https://superboard.xyz/campaigns/meet-the-new-onchaingm'
-    },
-    {
         image: 'onchaingm.png',
         title: 'Your Daily Web3 Ritual. GM every day!',
         cta: 'Say GM',
