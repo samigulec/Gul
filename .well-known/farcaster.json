@@ -6,9 +6,9 @@
   },
   "frame": {
     "version": "1",
-    "name": "Şans Çarkı",
-    "subtitle": "Günlük 5 çevirme hakkı!",
-    "description": "Her gün 5 ücretsiz çevirme hakkıyla şansını dene! Çarkı çevir, puanları kazan.",
+    "name": "SpinON",
+    "subtitle": "Spin on Base",
+    "description": "You can spin on Base. You will be rewarded.",
     "iconUrl": "https://www.spinon.xyz/spinon_logo.png",
     "homeUrl": "https://www.spinon.xyz",
     "imageUrl": "https://www.spinon.xyz/preview.png",
@@ -16,11 +16,11 @@
     "splashBackgroundColor": "#0a0a0f",
     "primaryCategory": "games",
     "tags": ["game", "arcade", "farcaster", "spin", "wheel"],
-    "tagline": "Çevir ve Kazan!",
+    "tagline": "Spin on Base!",
     "heroImageUrl": "https://www.spinon.xyz/preview.png",
     "screenshotUrls": ["https://www.spinon.xyz/preview.png"],
-    "ogTitle": "Şans Çarkı",
-    "ogDescription": "Günlük 5 ücretsiz çevirme!",
+    "ogTitle": "SpinON",
+    "ogDescription": "You can spin on Base. You will be rewarded",
     "ogImageUrl": "https://www.spinon.xyz/preview.png"
   }
 }
