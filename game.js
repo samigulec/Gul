@@ -527,6 +527,12 @@ function showPano(index) {
     currentPanoIndex = index;
     const ad = panoAds[index];
 
+    panoImage.onerror = () => {
+        panoImage.style.display = 'none';
+    };
+    panoImage.onload = () => {
+        panoImage.style.display = 'block';
+    };
     panoImage.src = ad.image;
     panoTitle.textContent = ad.title;
     panoCta.textContent = ad.cta;
@@ -552,7 +558,7 @@ function initializePano() {
     panoCta = document.getElementById('adCta');
     panoDots = document.querySelectorAll('.pano-dot');
 
-    if (!panoBanner) return;
+    if (!panoBanner || !panoImage || !panoTitle || !panoCta) return;
 
     panoDots.forEach(dot => {
         dot.addEventListener('click', (e) => {
@@ -574,7 +580,11 @@ function initializePano() {
     });
 
     showPano(0);
-    panoBanner.classList.add('show');
+
+    setTimeout(() => {
+        panoBanner.classList.add('show');
+    }, 500);
+
     panoRotationInterval = setInterval(rotatePano, 8000);
 }
 
