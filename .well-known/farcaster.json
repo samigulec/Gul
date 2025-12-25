@@ -7,20 +7,11 @@
   "frame": {
     "version": "1",
     "name": "SpinON",
-    "subtitle": "Spin on Base",
-    "description": "You can spin on Base. You will be rewarded.",
     "iconUrl": "https://www.spinon.xyz/spinon_logo.png",
     "homeUrl": "https://www.spinon.xyz",
     "imageUrl": "https://www.spinon.xyz/spinon_logo.png",
+    "buttonTitle": "Spin Now",
     "splashImageUrl": "https://www.spinon.xyz/spinon_logo.png",
-    "splashBackgroundColor": "#0a0a0f",
-    "primaryCategory": "games",
-    "tags": ["game", "arcade", "farcaster", "spin", "wheel"],
-    "tagline": "Spin on Base!",
-    "heroImageUrl": "https://www.spinon.xyz/spinon_logo.png",
-    "screenshotUrls": ["https://www.spinon.xyz/spinon_logo.png"],
-    "ogTitle": "SpinON",
-    "ogDescription": "You can spin on Base. You will be rewarded",
-    "ogImageUrl": "https://www.spinon.xyz/spinon_logo.png"
+    "splashBackgroundColor": "#0a0a0f"
   }
 }
