@@ -703,6 +703,37 @@ function initializeProfile() {
     }
 }
 
+// Navigation
+function initializeNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const homeBtn = document.getElementById('homeBtn');
+    const statsBtn = document.getElementById('statsBtn');
+    const appsBtn = document.getElementById('appsBtn');
+
+    function setActiveNav(btn) {
+        navItems.forEach(item => item.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    if (homeBtn) {
+        homeBtn.addEventListener('click', () => {
+            setActiveNav(homeBtn);
+        });
+    }
+
+    if (statsBtn) {
+        statsBtn.addEventListener('click', () => {
+            alert('Stats page coming soon!');
+        });
+    }
+
+    if (appsBtn) {
+        appsBtn.addEventListener('click', () => {
+            alert('Apps page coming soon!');
+        });
+    }
+}
+
 function openProfile() {
     updateProfileData();
     profileModal.classList.remove('hidden');
@@ -787,6 +818,9 @@ function init() {
 
     // Initialize profile
     initializeProfile();
+
+    // Initialize navigation
+    initializeNavigation();
 }
 
 // Start initialization when DOM is ready

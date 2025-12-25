@@ -85,6 +85,10 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
     filter: drop-shadow(0 10px 30px rgba(0, 82, 255, 0.4));
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .wheel-wrapper:hover {
@@ -106,13 +110,19 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 #wheelCanvas {
     width: 100%;
     height: 100%;
     filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
-    transition: filter 0.3s ease, transform 0.1s ease;
+    transition: filter 0.3s ease;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .wheel-wrapper.spinning #wheelCanvas {
@@ -443,17 +453,19 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 10px 16px;
+    gap: 3px;
+    padding: 8px 10px;
     border: none;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 12px;
+    border-radius: 10px;
     position: relative;
     font-weight: 600;
+    flex: 1;
+    min-width: 0;
 }
 
 .nav-item::before {
@@ -484,7 +496,7 @@ body {
 }
 
 .nav-item .nav-icon {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     transition: transform 0.3s ease;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
@@ -1194,15 +1206,15 @@ body {
     }
 
     .nav-item {
-        padding: 8px 12px;
+        padding: 6px 6px;
     }
 
     .nav-item .nav-icon {
-        font-size: 1.3rem;
+        font-size: 1.15rem;
     }
 
     .nav-item span:not(.nav-icon) {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
     }
 }
 
@@ -1284,15 +1296,15 @@ body {
     }
 
     .nav-item {
-        padding: 8px 10px;
+        padding: 6px 4px;
     }
 
     .nav-item .nav-icon {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
 
     .nav-item span:not(.nav-icon) {
-        font-size: 0.6rem;
+        font-size: 0.5rem;
     }
 }
 
@@ -1670,5 +1682,17 @@ body {
     .pano-cta {
         padding: 7px 12px;
         font-size: 0.7rem;
+    }
+
+    .nav-item {
+        padding: 5px 3px;
+    }
+
+    .nav-item .nav-icon {
+        font-size: 1rem;
+    }
+
+    .nav-item span:not(.nav-icon) {
+        font-size: 0.45rem;
     }
 }
