@@ -708,7 +708,6 @@ function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const homeBtn = document.getElementById('homeBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const appsBtn = document.getElementById('appsBtn');
 
     function setActiveNav(btn) {
         navItems.forEach(item => item.classList.remove('active'));
@@ -726,12 +725,40 @@ function initializeNavigation() {
             alert('Stats page coming soon!');
         });
     }
+}
 
-    if (appsBtn) {
-        appsBtn.addEventListener('click', () => {
-            alert('Apps page coming soon!');
-        });
-    }
+// Apps Modal
+let appsModal, appsClose, appsOverlay;
+
+function initializeApps() {
+    appsModal = document.getElementById('appsModal');
+    appsClose = document.getElementById('appsClose');
+    appsOverlay = document.querySelector('.apps-overlay');
+    const appsBtn = document.getElementById('appsBtn');
+
+    if (!appsModal || !appsClose || !appsBtn) return;
+
+    appsBtn.addEventListener('click', () => {
+        openApps();
+    });
+
+    appsClose.addEventListener('click', () => {
+        closeApps();
+    });
+
+    appsOverlay.addEventListener('click', () => {
+        closeApps();
+    });
+}
+
+function openApps() {
+    appsModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeApps() {
+    appsModal.classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
 function openProfile() {
@@ -818,6 +845,9 @@ function init() {
 
     // Initialize profile
     initializeProfile();
+
+    // Initialize apps
+    initializeApps();
 
     // Initialize navigation
     initializeNavigation();
