@@ -402,7 +402,7 @@ body {
     text-align: center;
     color: rgba(255, 255, 255, 0.7);
     font-size: 1rem;
-    margin-top: -10px;
+    margin-top: 20px;
     margin-bottom: 20px;
     letter-spacing: 2px;
     font-weight: 600;
@@ -1000,7 +1000,7 @@ body {
 
     .tap-hint {
         font-size: 0.85rem;
-        margin-top: -5px;
+        margin-top: 25px;
         margin-bottom: 40px;
     }
 }
@@ -1057,6 +1057,7 @@ body {
     }
 
     .tap-hint {
+        margin-top: 30px;
         margin-bottom: 50px;
     }
 
@@ -1120,6 +1121,7 @@ body {
     }
 
     .tap-hint {
+        margin-top: 35px;
         margin-bottom: 60px;
     }
 
@@ -1225,6 +1227,7 @@ body {
     .tap-hint {
         font-size: 0.8rem;
         letter-spacing: 1px;
+        margin-top: 40px;
         margin-bottom: 70px;
     }
 

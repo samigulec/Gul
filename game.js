@@ -112,13 +112,13 @@ function updateWalletDisplay() {
 initFarcaster();
 
 // Wheel segments - 5 segments: 3 USDC values, 2 X (loss)
-// Strict Blue and Dark Blue palette for high contrast
+// Harmonious Blue palette: Vibrant Base Blue + Rich Navy Blue
 const defaultSegments = [
-    { name: '0.01 USDC', value: 0.01, color: '#0052FF', gradient: '#0066FF', isLoss: false },
-    { name: 'X', value: 0, color: '#0a1628', gradient: '#0d1e36', isLoss: true },
-    { name: '0.001 USDC', value: 0.001, color: '#0066FF', gradient: '#0077FF', isLoss: false },
-    { name: 'X', value: 0, color: '#0a1628', gradient: '#0d1e36', isLoss: true },
-    { name: '0.02 USDC', value: 0.02, color: '#0044DD', gradient: '#0055EE', isLoss: false }
+    { name: '0.01 USDC', value: 0.01, color: '#0052FF', gradient: '#2970FF', isLoss: false },
+    { name: 'X', value: 0, color: '#0A2342', gradient: '#0F2D52', isLoss: true },
+    { name: '0.001 USDC', value: 0.001, color: '#0066FF', gradient: '#3385FF', isLoss: false },
+    { name: 'X', value: 0, color: '#0A2342', gradient: '#0F2D52', isLoss: true },
+    { name: '0.02 USDC', value: 0.02, color: '#0052FF', gradient: '#2970FF', isLoss: false }
 ];
 
 // State
@@ -247,27 +247,34 @@ function drawWheel(rotation = 0) {
         }
     });
 
-    // Blue Diamond outer ring - glossy premium effect
-    const ringWidth = 14;
+    // Blue Diamond outer ring - faceted gemstone effect
+    const ringWidth = 16;
     const ringRadius = radius + ringWidth / 2 + 2;
 
-    // Base dark ring
+    // Deep sapphire base shadow
     ctx.beginPath();
     ctx.arc(centerX, centerY, ringRadius, 0, 2 * Math.PI);
-    ctx.strokeStyle = '#001a4d';
-    ctx.lineWidth = ringWidth + 4;
+    ctx.strokeStyle = '#001233';
+    ctx.lineWidth = ringWidth + 6;
     ctx.stroke();
 
-    // Main blue diamond gradient
+    // Faceted diamond gradient - sharp color transitions like gem facets
     const ringGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    ringGradient.addColorStop(0, '#0052FF');
-    ringGradient.addColorStop(0.15, '#00BFFF');
-    ringGradient.addColorStop(0.3, '#ffffff');
-    ringGradient.addColorStop(0.35, '#00BFFF');
-    ringGradient.addColorStop(0.5, '#0052FF');
-    ringGradient.addColorStop(0.65, '#00BFFF');
-    ringGradient.addColorStop(0.7, '#ffffff');
-    ringGradient.addColorStop(0.85, '#00BFFF');
+    ringGradient.addColorStop(0, '#0066CC');
+    ringGradient.addColorStop(0.08, '#00D4FF');
+    ringGradient.addColorStop(0.12, '#FFFFFF');
+    ringGradient.addColorStop(0.18, '#00BFFF');
+    ringGradient.addColorStop(0.25, '#0052FF');
+    ringGradient.addColorStop(0.35, '#1E90FF');
+    ringGradient.addColorStop(0.42, '#FFFFFF');
+    ringGradient.addColorStop(0.48, '#00D4FF');
+    ringGradient.addColorStop(0.55, '#0052FF');
+    ringGradient.addColorStop(0.62, '#00BFFF');
+    ringGradient.addColorStop(0.68, '#FFFFFF');
+    ringGradient.addColorStop(0.75, '#1E90FF');
+    ringGradient.addColorStop(0.82, '#0066CC');
+    ringGradient.addColorStop(0.88, '#00D4FF');
+    ringGradient.addColorStop(0.92, '#FFFFFF');
     ringGradient.addColorStop(1, '#0052FF');
 
     ctx.beginPath();
@@ -276,24 +283,31 @@ function drawWheel(rotation = 0) {
     ctx.lineWidth = ringWidth;
     ctx.stroke();
 
-    // Outer highlight glow
+    // Outer cyan glow for depth
     ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius + ringWidth / 2 + 2, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(0, 191, 255, 0.6)';
+    ctx.arc(centerX, centerY, ringRadius + ringWidth / 2 + 3, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Inner bright edge for 3D effect
+    // Inner bright highlight edge
     ctx.beginPath();
     ctx.arc(centerX, centerY, ringRadius - ringWidth / 2 - 1, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Additional glint effect
+    // Top-left glint (light reflection)
     ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius, -0.3, 0.3);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.arc(centerX, centerY, ringRadius, -0.5, 0.2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Secondary glint opposite side
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, ringRadius, 2.6, 3.3);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
