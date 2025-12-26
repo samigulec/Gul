@@ -263,6 +263,109 @@
             </div>
         </div>
 
+        <!-- Stats Modal -->
+        <div id="statsModal" class="stats-modal hidden">
+            <div class="stats-overlay"></div>
+            <div class="stats-container">
+                <button class="stats-close" id="statsClose">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="stats-header">
+                    <h2 class="stats-title">Your Statistics</h2>
+                    <p class="stats-subtitle">Track your spinning journey</p>
+                </div>
+
+                <!-- User Info Card -->
+                <div class="stats-user-card">
+                    <div class="stats-avatar-wrapper">
+                        <img id="statsUserPfp" class="stats-avatar" src="spinon_logo.png" alt="Profile">
+                    </div>
+                    <div class="stats-user-info">
+                        <h3 class="stats-user-name" id="statsUserName">Spinner</h3>
+                        <p class="stats-user-handle" id="statsUserHandle">@user</p>
+                    </div>
+                    <div class="stats-sync-status" id="statsSyncStatus">
+                        <span class="sync-dot"></span>
+                        <span class="sync-text">Synced</span>
+                    </div>
+                </div>
+
+                <!-- Main Stats Grid -->
+                <div class="stats-main-grid">
+                    <div class="stats-card stats-card-primary">
+                        <div class="stats-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 6V7.5M12 16.5V18M15 9.5C15 8.12 13.66 7 12 7C10.34 7 9 8.12 9 9.5C9 10.88 10.34 12 12 12C13.66 12 15 13.12 15 14.5C15 15.88 13.66 17 12 17C10.34 17 9 15.88 9 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stats-card-content">
+                            <span class="stats-card-value" id="statsWalletBalance">0.000</span>
+                            <span class="stats-card-label">USDC Earned</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-card stats-card-secondary">
+                        <div class="stats-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="stats-card-content">
+                            <span class="stats-card-value" id="statsTotalPoints">0</span>
+                            <span class="stats-card-label">Total Points</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Stats -->
+                <div class="stats-secondary-grid">
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-value" id="statsAllSpins">0</span>
+                        <span class="stats-mini-label">Total Spins</span>
+                    </div>
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-value" id="statsAllWins">0</span>
+                        <span class="stats-mini-label">Wins</span>
+                    </div>
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-value" id="statsWinRateValue">0%</span>
+                        <span class="stats-mini-label">Win Rate</span>
+                    </div>
+                </div>
+
+                <!-- Spin History Section -->
+                <div class="stats-history-section">
+                    <div class="stats-history-header">
+                        <h3 class="stats-history-title">Spin History</h3>
+                        <span class="stats-history-count" id="statsHistoryCount">0 spins</span>
+                    </div>
+                    <div class="stats-history-list" id="statsHistoryList">
+                        <div class="stats-history-empty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                                <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+                            </svg>
+                            <p>No spins yet</p>
+                            <span>Start spinning to see your history!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Info -->
+                <div class="stats-data-info">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Your data is securely stored and validated on the server</span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script type="module" src="game.js"></script>

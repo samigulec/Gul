@@ -1,12 +1,19 @@
 import { sdk } from 'https://esm.sh/@farcaster/frame-sdk';
+import {
+    getUserStats,
+    upsertUserStats,
+    recordSpin,
+    getSpinHistory,
+    syncLocalToDatabase,
+    incrementStats
+} from './supabase.js';
 
-// Constants
 const BASE_CHAIN_ID = 8453;
 
-// Farcaster SDK
 let farcasterUser = null;
 let currentChainId = null;
 let walletAddress = null;
+let userId = null;
 
 async function initFarcaster() {
     try {
@@ -14,14 +21,58 @@ async function initFarcaster() {
         if (context?.user) {
             farcasterUser = context.user;
             walletAddress = farcasterUser.custody_address || null;
+            userId = farcasterUser.fid?.toString() || walletAddress || null;
         }
         sdk.actions.ready();
         checkNetwork();
         updateWalletDisplay();
+        syncUserData();
     } catch (e) {
         console.log('Farcaster context not available');
         sdk.actions.ready();
         updateWalletDisplay();
+        if (!userId && walletAddress) {
+            userId = walletAddress;
+            syncUserData();
+        }
+    }
+}
+
+async function syncUserData() {
+    if (!userId) return;
+
+    try {
+        const localStats = {
+            totalSpins,
+            totalWins,
+            totalWinnings,
+            totalPoints: Math.floor(totalWinnings * 1000)
+        };
+
+        const username = farcasterUser?.displayName || farcasterUser?.username || '';
+        const pfpUrl = farcasterUser?.pfpUrl || '';
+
+        await syncLocalToDatabase(userId, localStats, username, pfpUrl);
+
+        const dbStats = await getUserStats(userId);
+        if (dbStats) {
+            if (dbStats.total_spins > totalSpins) {
+                totalSpins = dbStats.total_spins;
+                localStorage.setItem('totalSpins', totalSpins.toString());
+                if (totalSpinsEl) totalSpinsEl.textContent = totalSpins;
+            }
+            if (dbStats.total_wins > totalWins) {
+                totalWins = dbStats.total_wins;
+                localStorage.setItem('totalWins', totalWins.toString());
+            }
+            if (parseFloat(dbStats.total_usdc) > totalWinnings) {
+                totalWinnings = parseFloat(dbStats.total_usdc);
+                localStorage.setItem('totalWinnings', totalWinnings.toString());
+                updateWinningsDisplay();
+            }
+        }
+    } catch (e) {
+        console.error('Error syncing user data:', e);
     }
 }
 
@@ -464,36 +515,37 @@ function spinWheel() {
     animate();
 }
 
-function finishSpin() {
+async function finishSpin() {
     isSpinning = false;
     wheelWrapper.classList.remove('spinning');
 
-    // Update total spins
     totalSpins++;
     localStorage.setItem('totalSpins', totalSpins.toString());
     totalSpinsEl.textContent = totalSpins;
 
-    // Find winning segment
     const segmentAngle = (2 * Math.PI) / segments.length;
 
-    // Normalize rotation to 0-2π range
     let normalizedRotation = currentRotation % (2 * Math.PI);
     if (normalizedRotation < 0) normalizedRotation += 2 * Math.PI;
 
-    // Calculate the angle at the pointer position
     let pointerAngle = (2 * Math.PI - normalizedRotation) % (2 * Math.PI);
 
-    // Find which segment this angle falls into
     const winningIndex = Math.floor(pointerAngle / segmentAngle) % segments.length;
     const winner = segments[winningIndex];
 
-    // Effects
     vibrate([100, 50, 100, 50, 100]);
     createConfetti();
 
-    // Update popup based on result
     const popupEmoji = document.querySelector('.popup-emoji');
     const popupTitle = document.querySelector('.popup-content h2');
+
+    const isWin = !winner.isLoss;
+    const spinResult = {
+        isWin,
+        amount: isWin ? winner.value : 0,
+        segmentName: winner.name,
+        points: isWin ? Math.floor(winner.value * 1000) : 0
+    };
 
     if (winner.isLoss) {
         popupEmoji.textContent = '😢';
@@ -514,9 +566,18 @@ function finishSpin() {
     }
 
     resultPopup.classList.remove('hidden');
-
-    // Animate decorative shapes
     animateDecoShapes();
+
+    if (userId) {
+        try {
+            await Promise.all([
+                recordSpin(userId, spinResult),
+                incrementStats(userId, spinResult)
+            ]);
+        } catch (e) {
+            console.error('Error recording spin to database:', e);
+        }
+    }
 }
 
 
@@ -712,7 +773,8 @@ function initializeProfile() {
     }
 }
 
-// Navigation
+let statsModal, statsClose, statsOverlay;
+
 function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const homeBtn = document.getElementById('homeBtn');
@@ -731,9 +793,206 @@ function initializeNavigation() {
 
     if (statsBtn) {
         statsBtn.addEventListener('click', () => {
-            alert('Stats page coming soon!');
+            openStats();
         });
     }
+}
+
+function initializeStats() {
+    statsModal = document.getElementById('statsModal');
+    statsClose = document.getElementById('statsClose');
+    statsOverlay = document.querySelector('.stats-overlay');
+
+    if (!statsModal || !statsClose) return;
+
+    statsClose.addEventListener('click', () => {
+        closeStats();
+    });
+
+    if (statsOverlay) {
+        statsOverlay.addEventListener('click', () => {
+            closeStats();
+        });
+    }
+}
+
+async function openStats() {
+    if (!statsModal) return;
+
+    statsModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    updateStatsDisplay();
+    await loadSpinHistory();
+}
+
+function closeStats() {
+    if (!statsModal) return;
+    statsModal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+async function updateStatsDisplay() {
+    const statsUserPfp = document.getElementById('statsUserPfp');
+    const statsUserName = document.getElementById('statsUserName');
+    const statsUserHandle = document.getElementById('statsUserHandle');
+    const statsWalletBalance = document.getElementById('statsWalletBalance');
+    const statsTotalPoints = document.getElementById('statsTotalPoints');
+    const statsAllSpins = document.getElementById('statsAllSpins');
+    const statsAllWins = document.getElementById('statsAllWins');
+    const statsWinRateValue = document.getElementById('statsWinRateValue');
+    const statsSyncStatus = document.getElementById('statsSyncStatus');
+
+    if (statsSyncStatus) {
+        statsSyncStatus.classList.add('syncing');
+        const syncText = statsSyncStatus.querySelector('.sync-text');
+        if (syncText) syncText.textContent = 'Syncing';
+    }
+
+    if (farcasterUser) {
+        if (statsUserPfp && farcasterUser.pfpUrl) {
+            statsUserPfp.src = farcasterUser.pfpUrl;
+        }
+        if (statsUserName) {
+            statsUserName.textContent = farcasterUser.displayName || farcasterUser.username || 'Spinner';
+        }
+        if (statsUserHandle) {
+            statsUserHandle.textContent = farcasterUser.username ? `@${farcasterUser.username}` : '@user';
+        }
+    } else {
+        if (statsUserName) statsUserName.textContent = 'Spinner';
+        if (statsUserHandle) {
+            statsUserHandle.textContent = walletAddress
+                ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+                : '@user';
+        }
+    }
+
+    let displaySpins = totalSpins;
+    let displayWins = totalWins;
+    let displayUsdc = totalWinnings;
+    let displayPoints = Math.floor(totalWinnings * 1000);
+
+    if (userId) {
+        try {
+            const dbStats = await getUserStats(userId);
+            if (dbStats) {
+                displaySpins = Math.max(displaySpins, dbStats.total_spins);
+                displayWins = Math.max(displayWins, dbStats.total_wins);
+                displayUsdc = Math.max(displayUsdc, parseFloat(dbStats.total_usdc));
+                displayPoints = Math.max(displayPoints, dbStats.total_points);
+            }
+        } catch (e) {
+            console.error('Error fetching stats:', e);
+        }
+    }
+
+    if (statsWalletBalance) statsWalletBalance.textContent = displayUsdc.toFixed(3);
+    if (statsTotalPoints) statsTotalPoints.textContent = displayPoints.toLocaleString();
+    if (statsAllSpins) statsAllSpins.textContent = displaySpins.toLocaleString();
+    if (statsAllWins) statsAllWins.textContent = displayWins.toLocaleString();
+
+    const winRate = displaySpins > 0 ? Math.round((displayWins / displaySpins) * 100) : 0;
+    if (statsWinRateValue) statsWinRateValue.textContent = `${winRate}%`;
+
+    if (statsSyncStatus) {
+        statsSyncStatus.classList.remove('syncing');
+        const syncText = statsSyncStatus.querySelector('.sync-text');
+        if (syncText) syncText.textContent = 'Synced';
+    }
+}
+
+async function loadSpinHistory() {
+    const historyList = document.getElementById('statsHistoryList');
+    const historyCount = document.getElementById('statsHistoryCount');
+
+    if (!historyList) return;
+
+    if (!userId) {
+        historyList.innerHTML = `
+            <div class="stats-history-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                    <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+                </svg>
+                <p>Connect to see history</p>
+                <span>Your spin history will appear here</span>
+            </div>
+        `;
+        if (historyCount) historyCount.textContent = '0 spins';
+        return;
+    }
+
+    try {
+        const history = await getSpinHistory(userId, 20);
+
+        if (!history || history.length === 0) {
+            historyList.innerHTML = `
+                <div class="stats-history-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                        <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+                    </svg>
+                    <p>No spins yet</p>
+                    <span>Start spinning to see your history!</span>
+                </div>
+            `;
+            if (historyCount) historyCount.textContent = '0 spins';
+            return;
+        }
+
+        if (historyCount) historyCount.textContent = `${history.length} spin${history.length !== 1 ? 's' : ''}`;
+
+        historyList.innerHTML = history.map(spin => {
+            const isWin = spin.result_type === 'win';
+            const date = new Date(spin.created_at);
+            const formattedDate = formatRelativeTime(date);
+
+            return `
+                <div class="stats-history-item">
+                    <div class="stats-history-icon ${isWin ? 'win' : 'loss'}">
+                        ${isWin ? '&#127881;' : '&#10060;'}
+                    </div>
+                    <div class="stats-history-details">
+                        <div class="stats-history-result">${spin.segment_name}</div>
+                        <div class="stats-history-date">${formattedDate}</div>
+                    </div>
+                    <div class="stats-history-amount ${isWin ? 'win' : 'loss'}">
+                        <span class="stats-history-amount-value">${isWin ? '+' : ''}${parseFloat(spin.amount).toFixed(3)}</span>
+                        <span class="stats-history-amount-label">USDC</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (e) {
+        console.error('Error loading spin history:', e);
+        historyList.innerHTML = `
+            <div class="stats-history-empty">
+                <p>Unable to load history</p>
+                <span>Please try again later</span>
+            </div>
+        `;
+    }
+}
+
+function formatRelativeTime(date) {
+    const now = new Date();
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+    });
 }
 
 // Apps Modal
@@ -882,6 +1141,9 @@ function init() {
 
     // Initialize apps
     initializeApps();
+
+    // Initialize stats
+    initializeStats();
 
     // Initialize navigation
     initializeNavigation();
