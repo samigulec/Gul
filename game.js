@@ -5,7 +5,8 @@ import {
     recordSpin,
     getSpinHistory,
     syncLocalToDatabase,
-    incrementStats
+    incrementStats,
+    getLeaderboard
 } from './supabase.js';
 
 const BASE_CHAIN_ID = 8453;
@@ -779,6 +780,7 @@ function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const homeBtn = document.getElementById('homeBtn');
     const statsBtn = document.getElementById('statsBtn');
+    const leaderboardBtn = document.getElementById('leaderboardBtn');
 
     function setActiveNav(btn) {
         navItems.forEach(item => item.classList.remove('active'));
@@ -794,6 +796,12 @@ function initializeNavigation() {
     if (statsBtn) {
         statsBtn.addEventListener('click', () => {
             openStats();
+        });
+    }
+
+    if (leaderboardBtn) {
+        leaderboardBtn.addEventListener('click', () => {
+            openLeaderboard();
         });
     }
 }
@@ -995,6 +1003,171 @@ function formatRelativeTime(date) {
     });
 }
 
+let leaderboardModal, leaderboardClose, leaderboardOverlay;
+
+function initializeLeaderboard() {
+    leaderboardModal = document.getElementById('leaderboardModal');
+    leaderboardClose = document.getElementById('leaderboardClose');
+    leaderboardOverlay = document.querySelector('.leaderboard-overlay');
+
+    if (!leaderboardModal || !leaderboardClose) return;
+
+    leaderboardClose.addEventListener('click', () => {
+        closeLeaderboard();
+    });
+
+    if (leaderboardOverlay) {
+        leaderboardOverlay.addEventListener('click', () => {
+            closeLeaderboard();
+        });
+    }
+}
+
+async function openLeaderboard() {
+    if (!leaderboardModal) return;
+
+    leaderboardModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    await loadLeaderboardData();
+}
+
+function closeLeaderboard() {
+    if (!leaderboardModal) return;
+    leaderboardModal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+async function loadLeaderboardData() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    const userPosition = document.getElementById('leaderboardUserPosition');
+
+    if (!leaderboardList) return;
+
+    leaderboardList.innerHTML = `
+        <div class="leaderboard-loading">
+            <div class="leaderboard-spinner"></div>
+            <span>Loading rankings...</span>
+        </div>
+    `;
+
+    try {
+        const rankings = await getLeaderboard(50);
+
+        if (!rankings || rankings.length === 0) {
+            leaderboardList.innerHTML = `
+                <div class="leaderboard-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 21H16M12 17V21M17 4V8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8V4" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                    </svg>
+                    <p>No rankings yet</p>
+                    <span>Be the first to spin and claim your spot!</span>
+                </div>
+            `;
+            return;
+        }
+
+        let userRank = -1;
+        if (userId) {
+            userRank = rankings.findIndex(r => r.user_id === userId) + 1;
+        }
+
+        leaderboardList.innerHTML = rankings.map((user, index) => {
+            const rank = index + 1;
+            const topClass = rank <= 3 ? `top-${rank}` : '';
+            const rankDisplay = getRankDisplay(rank);
+            const username = user.username || `User ${user.user_id.slice(0, 6)}`;
+            const handle = user.username ? `@${user.username}` : `${user.user_id.slice(0, 8)}...`;
+            const avatar = user.pfp_url || 'spinon_logo.png';
+
+            return `
+                <div class="leaderboard-item ${topClass}">
+                    <div class="lb-rank">${rankDisplay}</div>
+                    <div class="lb-user">
+                        <img class="lb-avatar" src="${avatar}" alt="${username}" onerror="this.src='spinon_logo.png'">
+                        <div class="lb-user-details">
+                            <span class="lb-username">${escapeHtml(username)}</span>
+                            <span class="lb-handle">${escapeHtml(handle)}</span>
+                        </div>
+                    </div>
+                    <div class="lb-spins">${user.total_spins.toLocaleString()}</div>
+                    <div class="lb-rewards">${parseFloat(user.total_usdc).toFixed(3)}</div>
+                </div>
+            `;
+        }).join('');
+
+        updateUserPosition(rankings, userRank);
+
+    } catch (e) {
+        console.error('Error loading leaderboard:', e);
+        leaderboardList.innerHTML = `
+            <div class="leaderboard-empty">
+                <p>Unable to load rankings</p>
+                <span>Please try again later</span>
+            </div>
+        `;
+    }
+}
+
+function getRankDisplay(rank) {
+    if (rank === 1) {
+        return '<div class="lb-rank-badge gold">&#127942;</div>';
+    } else if (rank === 2) {
+        return '<div class="lb-rank-badge silver">&#129352;</div>';
+    } else if (rank === 3) {
+        return '<div class="lb-rank-badge bronze">&#129353;</div>';
+    }
+    return rank;
+}
+
+function updateUserPosition(rankings, userRank) {
+    const userPosition = document.getElementById('leaderboardUserPosition');
+    const lbUserRank = userPosition?.querySelector('.lb-user-rank');
+    const lbUserAvatar = document.getElementById('lbUserAvatar');
+    const lbUserName = document.getElementById('lbUserName');
+    const lbUserHandle = document.getElementById('lbUserHandle');
+    const lbUserSpins = document.getElementById('lbUserSpins');
+    const lbUserRewards = document.getElementById('lbUserRewards');
+
+    if (!userPosition) return;
+
+    if (farcasterUser) {
+        if (lbUserAvatar && farcasterUser.pfpUrl) {
+            lbUserAvatar.src = farcasterUser.pfpUrl;
+        }
+        if (lbUserName) {
+            lbUserName.textContent = farcasterUser.displayName || farcasterUser.username || 'You';
+        }
+        if (lbUserHandle) {
+            lbUserHandle.textContent = farcasterUser.username ? `@${farcasterUser.username}` : '@user';
+        }
+    } else if (walletAddress) {
+        if (lbUserName) lbUserName.textContent = 'You';
+        if (lbUserHandle) lbUserHandle.textContent = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+    }
+
+    if (lbUserRank) {
+        lbUserRank.textContent = userRank > 0 ? `#${userRank}` : '--';
+    }
+
+    if (userId && userRank > 0) {
+        const userStats = rankings.find(r => r.user_id === userId);
+        if (userStats) {
+            if (lbUserSpins) lbUserSpins.textContent = userStats.total_spins.toLocaleString();
+            if (lbUserRewards) lbUserRewards.textContent = parseFloat(userStats.total_usdc).toFixed(3);
+        }
+    } else {
+        if (lbUserSpins) lbUserSpins.textContent = totalSpins.toLocaleString();
+        if (lbUserRewards) lbUserRewards.textContent = totalWinnings.toFixed(3);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Apps Modal
 let appsModal, appsClose, appsOverlay;
 
@@ -1144,6 +1317,9 @@ function init() {
 
     // Initialize stats
     initializeStats();
+
+    // Initialize leaderboard
+    initializeLeaderboard();
 
     // Initialize navigation
     initializeNavigation();

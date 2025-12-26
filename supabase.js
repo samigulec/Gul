@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const SUPABASE_URL = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
+const SUPABASE_URL = 'https://oyopelevtazyntkxfieg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95b3BlbGV2dGF6eW50a3hmaWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NTMyMDEsImV4cCI6MjA4MjMyOTIwMX0.USCSfPdxsTj68zrtYAuymmnRYM9N9uwlsUoTgKTdfS8';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -141,4 +141,20 @@ export async function incrementStats(userId, spinResult) {
     };
 
     return await upsertUserStats(userId, updated);
+}
+
+export async function getLeaderboard(limit = 50) {
+    const { data, error } = await supabase
+        .from('user_stats')
+        .select('user_id, username, pfp_url, total_spins, total_wins, total_usdc, total_points')
+        .order('total_usdc', { ascending: false })
+        .order('total_spins', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching leaderboard:', error);
+        return [];
+    }
+
+    return data || [];
 }

@@ -97,13 +97,13 @@
                 <span class="nav-icon">👤</span>
                 <span>Profile</span>
             </button>
+            <button class="nav-item" id="leaderboardBtn">
+                <span class="nav-icon">🏆</span>
+                <span>Ranking</span>
+            </button>
             <button class="nav-item" id="statsBtn">
                 <span class="nav-icon">📊</span>
                 <span>Stats</span>
-            </button>
-            <button class="nav-item" id="appsBtn">
-                <span class="nav-icon">📱</span>
-                <span>Apps</span>
             </button>
             <button class="nav-item" id="soundBtn">
                 <span class="nav-icon">🔊</span>
@@ -362,6 +362,68 @@
                         <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                     <span>Your data is securely stored and validated on the server</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Modal -->
+        <div id="leaderboardModal" class="leaderboard-modal hidden">
+            <div class="leaderboard-overlay"></div>
+            <div class="leaderboard-container">
+                <button class="leaderboard-close" id="leaderboardClose">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title-wrapper">
+                        <svg class="leaderboard-trophy-icon" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 21H16M12 17V21M17 4V8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 4H19C19 6.20914 17.2091 8 15 8M7 4H5C5 6.20914 6.79086 8 9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 4H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h2 class="leaderboard-title">LEADERBOARD</h2>
+                    </div>
+                    <p class="leaderboard-subtitle">Top spinners on Base</p>
+                </div>
+
+                <!-- Leaderboard Table Header -->
+                <div class="leaderboard-table-header">
+                    <span class="lb-col-rank">#</span>
+                    <span class="lb-col-user">User</span>
+                    <span class="lb-col-spins">Spins</span>
+                    <span class="lb-col-rewards">USDC</span>
+                </div>
+
+                <!-- Leaderboard List -->
+                <div class="leaderboard-list" id="leaderboardList">
+                    <div class="leaderboard-loading">
+                        <div class="leaderboard-spinner"></div>
+                        <span>Loading rankings...</span>
+                    </div>
+                </div>
+
+                <!-- Current User Position -->
+                <div class="leaderboard-user-position" id="leaderboardUserPosition">
+                    <div class="lb-user-rank">--</div>
+                    <div class="lb-user-info">
+                        <img class="lb-user-avatar" id="lbUserAvatar" src="spinon_logo.png" alt="You">
+                        <div class="lb-user-details">
+                            <span class="lb-user-name" id="lbUserName">You</span>
+                            <span class="lb-user-handle" id="lbUserHandle">@user</span>
+                        </div>
+                    </div>
+                    <div class="lb-user-spins" id="lbUserSpins">0</div>
+                    <div class="lb-user-rewards" id="lbUserRewards">0.000</div>
+                </div>
+
+                <div class="leaderboard-info">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Rankings update in real-time from secure server data</span>
                 </div>
             </div>
         </div>
