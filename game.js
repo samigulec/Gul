@@ -523,35 +523,52 @@ async function getSpinFeeFromContract() {
 async function executeContractSpin() {
     const spinFeeWei = await getSpinFeeFromContract();
     const spinFunctionData = SPIN_FUNCTION_SELECTOR;
+    const hexValue = '0x' + BigInt(spinFeeWei).toString(16);
 
-    try {
-        const result = await sdk.actions.sendTransaction({
-            chainId: `eip155:${BASE_CHAIN_ID}`,
-            transaction: {
-                to: SPINON_CONTRACT_ADDRESS,
-                value: spinFeeWei,
-                data: spinFunctionData
+    if (sdk && sdk.actions && typeof sdk.actions.sendTransaction === 'function') {
+        try {
+            const result = await sdk.actions.sendTransaction({
+                chainId: `eip155:${BASE_CHAIN_ID}`,
+                transaction: {
+                    to: SPINON_CONTRACT_ADDRESS,
+                    value: hexValue,
+                    data: spinFunctionData
+                }
+            });
+
+            if (result) {
+                const txHash = result.transactionHash || result.hash || result;
+                if (txHash && typeof txHash === 'string') {
+                    return txHash;
+                }
             }
-        });
-
-        if (result && result.transactionHash) {
-            return result.transactionHash;
+        } catch (sdkError) {
+            console.log('SDK sendTransaction error:', sdkError);
         }
+    }
 
-        throw new Error('Transaction failed');
-    } catch (sdkError) {
-        console.log('SDK transaction failed, trying window.ethereum:', sdkError);
-
-        if (!window.ethereum) {
-            throw new Error('Wallet not connected');
+    if (sdk && sdk.wallet && sdk.wallet.ethProvider) {
+        try {
+            const provider = sdk.wallet.ethProvider;
+            const txHash = await provider.request({
+                method: 'eth_sendTransaction',
+                params: [{
+                    to: SPINON_CONTRACT_ADDRESS,
+                    value: hexValue,
+                    data: spinFunctionData
+                }]
+            });
+            return txHash;
+        } catch (providerError) {
+            console.log('SDK ethProvider error:', providerError);
         }
+    }
 
+    if (window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (!accounts || accounts.length === 0) {
             await window.ethereum.request({ method: 'eth_requestAccounts' });
         }
-
-        const hexValue = '0x' + BigInt(spinFeeWei).toString(16);
 
         const txHash = await window.ethereum.request({
             method: 'eth_sendTransaction',
@@ -561,9 +578,10 @@ async function executeContractSpin() {
                 data: spinFunctionData
             }]
         });
-
         return txHash;
     }
+
+    throw new Error('No wallet provider available');
 }
 
 function showSpinStatus(message, isError = false) {
