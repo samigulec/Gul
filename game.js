@@ -11,6 +11,33 @@ import {
 
 const BASE_CHAIN_ID = 8453;
 
+const SPINON_CONTRACT_ADDRESS = 'KONTRAT_ADRESINI_BURAYA_YAZ';
+const SPIN_FEE = '0.0001';
+
+const SPINON_ABI = [
+    {
+        "inputs": [],
+        "name": "spin",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "spinFee",
+        "outputs": [{"type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{"type": "address"}],
+        "name": "userSpins",
+        "outputs": [{"type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
 let farcasterUser = null;
 let currentChainId = null;
 let walletAddress = null;
@@ -489,9 +516,82 @@ function createConfetti() {
     setTimeout(() => confettiElements.forEach(c => c.remove()), 4000);
 }
 
+async function executeContractSpin() {
+    if (!window.ethereum) {
+        throw new Error('Wallet not connected');
+    }
+
+    if (currentChainId !== BASE_CHAIN_ID) {
+        await switchToBase();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (currentChainId !== BASE_CHAIN_ID) {
+            throw new Error('Please switch to Base network');
+        }
+    }
+
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (!accounts || accounts.length === 0) {
+        const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (!newAccounts || newAccounts.length === 0) {
+            throw new Error('Please connect your wallet');
+        }
+    }
+
+    const spinFeeWei = '0x' + (BigInt(Math.floor(parseFloat(SPIN_FEE) * 1e18))).toString(16);
+
+    const iface = {
+        encodeFunctionData: () => '0xbf6a2490'
+    };
+
+    const txParams = {
+        from: accounts[0] || walletAddress,
+        to: SPINON_CONTRACT_ADDRESS,
+        value: spinFeeWei,
+        data: iface.encodeFunctionData()
+    };
+
+    const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [txParams]
+    });
+
+    return txHash;
+}
+
+function showSpinStatus(message, isError = false) {
+    const statusEl = document.getElementById('spinStatus');
+    if (statusEl) {
+        statusEl.textContent = message;
+        statusEl.className = `spin-status ${isError ? 'error' : 'pending'}`;
+        statusEl.classList.remove('hidden');
+    }
+}
+
+function hideSpinStatus() {
+    const statusEl = document.getElementById('spinStatus');
+    if (statusEl) {
+        statusEl.classList.add('hidden');
+    }
+}
+
 // Spin the wheel
-function spinWheel() {
+async function spinWheel() {
     if (isSpinning) return;
+
+    showSpinStatus('Waiting for transaction approval...');
+
+    try {
+        const txHash = await executeContractSpin();
+        showSpinStatus('Transaction confirmed! Spinning...');
+        console.log('Spin transaction:', txHash);
+    } catch (error) {
+        console.error('Contract spin failed:', error);
+        showSpinStatus(error.message || 'Transaction failed', true);
+        setTimeout(hideSpinStatus, 3000);
+        return;
+    }
+
+    hideSpinStatus();
 
     isSpinning = true;
     wheelWrapper.classList.add('spinning');

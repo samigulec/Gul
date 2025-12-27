@@ -3092,3 +3092,46 @@ body {
         height: 34px;
     }
 }
+
+/* Spin Status */
+.spin-status {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: rgba(0, 82, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    z-index: 100;
+    animation: statusPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(0, 82, 255, 0.4);
+}
+
+.spin-status.hidden {
+    display: none;
+}
+
+.spin-status.pending {
+    background: rgba(0, 82, 255, 0.95);
+}
+
+.spin-status.error {
+    background: rgba(255, 71, 87, 0.95);
+    animation: none;
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateX(-50%) scale(0.98);
+    }
+}
