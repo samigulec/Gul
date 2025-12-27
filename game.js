@@ -34,9 +34,10 @@ async function initFarcaster() {
             userId = context.user.fid?.toString() || walletAddress || null;
         }
 
-        if (sdk.wallet && sdk.wallet.ethProvider) {
+        const walletProvider = sdk.wallet?.getEthereumProvider?.() || sdk.wallet?.ethProvider;
+        if (walletProvider) {
             try {
-                const accounts = await sdk.wallet.ethProvider.request({ method: 'eth_accounts' });
+                const accounts = await walletProvider.request({ method: 'eth_accounts' });
                 if (accounts && accounts.length > 0 && accounts[0]) {
                     walletAddress = accounts[0];
                 }
@@ -104,7 +105,7 @@ async function syncUserData() {
 
 async function checkNetwork() {
     try {
-        const provider = (sdk && sdk.wallet && sdk.wallet.ethProvider) || window.ethereum;
+        const provider = sdk?.wallet?.getEthereumProvider?.() || sdk?.wallet?.ethProvider || window.ethereum;
         if (provider) {
             const chainId = await provider.request({ method: 'eth_chainId' });
             currentChainId = parseInt(chainId, 16);
@@ -153,7 +154,7 @@ function updateNetworkStatus() {
 }
 
 async function switchToBase() {
-    const provider = (sdk && sdk.wallet && sdk.wallet.ethProvider) || window.ethereum;
+    const provider = sdk?.wallet?.getEthereumProvider?.() || sdk?.wallet?.ethProvider || window.ethereum;
     if (!provider) return;
 
     try {
@@ -552,23 +553,32 @@ async function getSpinFeeFromContract() {
 
 async function executeContractSpin() {
     const spinFeeWei = await getSpinFeeFromContract();
-    const spinFunctionData = SPIN_FUNCTION_SELECTOR;
+    const spinFunctionData = String(SPIN_FUNCTION_SELECTOR);
     const hexValue = '0x' + BigInt(spinFeeWei).toString(16);
-    const toAddress = SPINON_CONTRACT_ADDRESS.toLowerCase();
+    const toAddress = String(SPINON_CONTRACT_ADDRESS).toLowerCase();
 
-    const txParams = {
-        to: toAddress,
-        value: hexValue,
-        data: spinFunctionData,
-        chainId: '0x' + BASE_CHAIN_ID.toString(16)
-    };
+    if (!toAddress || !toAddress.startsWith('0x')) {
+        throw new Error('Invalid contract address');
+    }
+
+    console.log('Transaction params:', { to: toAddress, value: hexValue, data: spinFunctionData });
 
     let provider = null;
+    let fromAddress = walletAddress;
 
-    if (typeof sdk !== 'undefined' && sdk && sdk.wallet && sdk.wallet.ethProvider) {
-        provider = sdk.wallet.ethProvider;
-    } else if (window.ethereum) {
+    if (sdk && sdk.wallet) {
+        if (typeof sdk.wallet.getEthereumProvider === 'function') {
+            provider = sdk.wallet.getEthereumProvider();
+            console.log('Using sdk.wallet.getEthereumProvider()');
+        } else if (sdk.wallet.ethProvider) {
+            provider = sdk.wallet.ethProvider;
+            console.log('Using sdk.wallet.ethProvider');
+        }
+    }
+
+    if (!provider && window.ethereum) {
         provider = window.ethereum;
+        console.log('Using window.ethereum');
     }
 
     if (!provider) {
@@ -577,18 +587,38 @@ async function executeContractSpin() {
 
     try {
         const accounts = await provider.request({ method: 'eth_accounts' });
-        if (!accounts || accounts.length === 0) {
-            await provider.request({ method: 'eth_requestAccounts' });
+        console.log('Accounts:', accounts);
+        if (accounts && accounts.length > 0) {
+            fromAddress = accounts[0];
+        } else {
+            const requestedAccounts = await provider.request({ method: 'eth_requestAccounts' });
+            if (requestedAccounts && requestedAccounts.length > 0) {
+                fromAddress = requestedAccounts[0];
+            }
         }
     } catch (e) {
         console.log('Account request error:', e);
     }
+
+    if (!fromAddress) {
+        throw new Error('No wallet address available');
+    }
+
+    const txParams = {
+        from: String(fromAddress).toLowerCase(),
+        to: toAddress,
+        value: hexValue,
+        data: spinFunctionData
+    };
+
+    console.log('Final tx params:', txParams);
 
     const txHash = await provider.request({
         method: 'eth_sendTransaction',
         params: [txParams]
     });
 
+    console.log('Transaction hash:', txHash);
     return txHash;
 }
 
