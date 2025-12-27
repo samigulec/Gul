@@ -27,16 +27,35 @@ async function initFarcaster() {
         const context = await sdk.context;
         if (context?.user) {
             farcasterUser = context.user;
-            walletAddress = farcasterUser.custody_address || null;
-            userId = farcasterUser.fid?.toString() || walletAddress || null;
+            walletAddress = context.user.connectedAddress ||
+                           context.user.custody_address ||
+                           (context.user.verifiedAddresses && context.user.verifiedAddresses[0]) ||
+                           null;
+            userId = context.user.fid?.toString() || walletAddress || null;
         }
+
+        if (sdk.wallet && sdk.wallet.ethProvider) {
+            try {
+                const accounts = await sdk.wallet.ethProvider.request({ method: 'eth_accounts' });
+                if (accounts && accounts.length > 0 && accounts[0]) {
+                    walletAddress = accounts[0];
+                }
+            } catch (e) {
+                console.log('Could not get accounts from SDK provider');
+            }
+        }
+
         sdk.actions.ready();
         checkNetwork();
         updateWalletDisplay();
         syncUserData();
     } catch (e) {
-        console.log('Farcaster context not available');
-        sdk.actions.ready();
+        console.log('Farcaster context not available:', e);
+        try {
+            sdk.actions.ready();
+        } catch (readyError) {
+            console.log('SDK ready failed:', readyError);
+        }
         updateWalletDisplay();
         if (!userId && walletAddress) {
             userId = walletAddress;
@@ -85,25 +104,33 @@ async function syncUserData() {
 
 async function checkNetwork() {
     try {
-        if (window.ethereum) {
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        const provider = (sdk && sdk.wallet && sdk.wallet.ethProvider) || window.ethereum;
+        if (provider) {
+            const chainId = await provider.request({ method: 'eth_chainId' });
             currentChainId = parseInt(chainId, 16);
             updateNetworkStatus();
 
-            window.ethereum.on('chainChanged', (newChainId) => {
-                currentChainId = parseInt(newChainId, 16);
-                updateNetworkStatus();
-            });
+            if (provider.on) {
+                provider.on('chainChanged', (newChainId) => {
+                    currentChainId = parseInt(newChainId, 16);
+                    updateNetworkStatus();
+                });
 
-            window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length > 0) {
-                    walletAddress = accounts[0];
-                    updateWalletDisplay();
-                }
-            });
+                provider.on('accountsChanged', (accounts) => {
+                    if (accounts && accounts.length > 0) {
+                        walletAddress = accounts[0];
+                        updateWalletDisplay();
+                    }
+                });
+            }
+        } else {
+            currentChainId = BASE_CHAIN_ID;
+            updateNetworkStatus();
         }
     } catch (e) {
-        console.log('Network check not available');
+        console.log('Network check not available:', e);
+        currentChainId = BASE_CHAIN_ID;
+        updateNetworkStatus();
     }
 }
 
@@ -126,15 +153,18 @@ function updateNetworkStatus() {
 }
 
 async function switchToBase() {
+    const provider = (sdk && sdk.wallet && sdk.wallet.ethProvider) || window.ethereum;
+    if (!provider) return;
+
     try {
-        await window.ethereum.request({
+        await provider.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x2105' }],
         });
     } catch (switchError) {
         if (switchError.code === 4902) {
             try {
-                await window.ethereum.request({
+                await provider.request({
                     method: 'wallet_addEthereumChain',
                     params: [{
                         chainId: '0x2105',
@@ -524,64 +554,42 @@ async function executeContractSpin() {
     const spinFeeWei = await getSpinFeeFromContract();
     const spinFunctionData = SPIN_FUNCTION_SELECTOR;
     const hexValue = '0x' + BigInt(spinFeeWei).toString(16);
+    const toAddress = SPINON_CONTRACT_ADDRESS.toLowerCase();
 
-    if (sdk && sdk.actions && typeof sdk.actions.sendTransaction === 'function') {
-        try {
-            const result = await sdk.actions.sendTransaction({
-                chainId: `eip155:${BASE_CHAIN_ID}`,
-                transaction: {
-                    to: SPINON_CONTRACT_ADDRESS,
-                    value: hexValue,
-                    data: spinFunctionData
-                }
-            });
+    const txParams = {
+        to: toAddress,
+        value: hexValue,
+        data: spinFunctionData,
+        chainId: '0x' + BASE_CHAIN_ID.toString(16)
+    };
 
-            if (result) {
-                const txHash = result.transactionHash || result.hash || result;
-                if (txHash && typeof txHash === 'string') {
-                    return txHash;
-                }
-            }
-        } catch (sdkError) {
-            console.log('SDK sendTransaction error:', sdkError);
-        }
+    let provider = null;
+
+    if (typeof sdk !== 'undefined' && sdk && sdk.wallet && sdk.wallet.ethProvider) {
+        provider = sdk.wallet.ethProvider;
+    } else if (window.ethereum) {
+        provider = window.ethereum;
     }
 
-    if (sdk && sdk.wallet && sdk.wallet.ethProvider) {
-        try {
-            const provider = sdk.wallet.ethProvider;
-            const txHash = await provider.request({
-                method: 'eth_sendTransaction',
-                params: [{
-                    to: SPINON_CONTRACT_ADDRESS,
-                    value: hexValue,
-                    data: spinFunctionData
-                }]
-            });
-            return txHash;
-        } catch (providerError) {
-            console.log('SDK ethProvider error:', providerError);
-        }
+    if (!provider) {
+        throw new Error('No wallet provider available');
     }
 
-    if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    try {
+        const accounts = await provider.request({ method: 'eth_accounts' });
         if (!accounts || accounts.length === 0) {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            await provider.request({ method: 'eth_requestAccounts' });
         }
-
-        const txHash = await window.ethereum.request({
-            method: 'eth_sendTransaction',
-            params: [{
-                to: SPINON_CONTRACT_ADDRESS,
-                value: hexValue,
-                data: spinFunctionData
-            }]
-        });
-        return txHash;
+    } catch (e) {
+        console.log('Account request error:', e);
     }
 
-    throw new Error('No wallet provider available');
+    const txHash = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [txParams]
+    });
+
+    return txHash;
 }
 
 function showSpinStatus(message, isError = false) {
