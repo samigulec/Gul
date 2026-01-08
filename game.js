@@ -995,7 +995,9 @@ function initializePano() {
     panoLink.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const url = e.currentTarget.href;
+        const ad = panoAds[currentPanoIndex];
+        const url = ad?.link;
+        console.log('Pano clicked, opening:', url);
         if (url && url !== '#') {
             await openExternalApp(url);
         }
@@ -1471,16 +1473,28 @@ function initializeApps() {
 }
 
 async function openExternalApp(url) {
-    const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 2000)
-    );
-
+    console.log('Opening external app:', url);
+    
     try {
-        await Promise.race([
-            sdk.actions.openUrl(url),
-            timeoutPromise
-        ]);
+        // Farcaster SDK ile URL açmayı dene
+        if (sdk?.actions?.openUrl) {
+            console.log('Using sdk.actions.openUrl');
+            await sdk.actions.openUrl(url);
+            return;
+        }
     } catch (e) {
+        console.log('sdk.actions.openUrl failed:', e);
+    }
+    
+    // Fallback: Yeni sekmede aç (veya aynı pencerede)
+    try {
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            // Pop-up engellendi, aynı pencerede aç
+            window.location.href = url;
+        }
+    } catch (e) {
+        console.log('window.open failed, using location.href:', e);
         window.location.href = url;
     }
 }
