@@ -1636,10 +1636,10 @@ function closeApps() {
     document.body.style.overflow = '';
 }
 
-async function openProfile() {
+function openProfile() {
     profileModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    await updateProfileData();
+    updateProfileData();
 }
 
 function closeProfile() {
@@ -1647,7 +1647,7 @@ function closeProfile() {
     document.body.style.overflow = '';
 }
 
-async function updateProfileData() {
+function updateProfileData() {
     const profilePfp = document.getElementById('profilePfp');
     const profileName = document.getElementById('profileName');
     const profileHandle = document.getElementById('profileHandle');
@@ -1674,23 +1674,12 @@ async function updateProfileData() {
     const winRate = totalSpins > 0 ? Math.round((totalWins / totalSpins) * 100) : 0;
     profileWinRate.textContent = `${winRate}%`;
 
-    // Fetch pending winnings from contract
-    if (walletAddress) {
-        const pendingETH = await getPendingWinnings(walletAddress);
-        profileUsdcBalance.textContent = `${pendingETH} ETH`;
-        
-        // Enable/disable withdraw button based on pending winnings
-        if (withdrawBtn) {
-            const hasPending = parseFloat(pendingETH) > 0;
-            withdrawBtn.disabled = !hasPending;
-            withdrawBtn.textContent = hasPending ? 'Claim' : 'No Winnings';
-        }
-    } else {
-        profileUsdcBalance.textContent = '0.000 ETH';
-        if (withdrawBtn) {
-            withdrawBtn.disabled = true;
-            withdrawBtn.textContent = 'Connect Wallet';
-        }
+    // Show total USDC earned
+    profileUsdcBalance.textContent = `${totalWinnings.toFixed(3)} USDC`;
+    
+    // Hide withdraw button since rewards are virtual USDC points
+    if (withdrawBtn) {
+        withdrawBtn.style.display = 'none';
     }
 }
 
