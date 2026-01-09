@@ -30,3 +30,23 @@ CREATE POLICY "Allow update notification tokens" ON notification_tokens
 CREATE POLICY "Allow read notification tokens" ON notification_tokens
     FOR SELECT USING (true);
 
+-- Create notification_history table to track sent notifications
+CREATE TABLE IF NOT EXISTS notification_history (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    total_sent INTEGER DEFAULT 0,
+    total_failed INTEGER DEFAULT 0,
+    message TEXT,
+    results JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS for history
+ALTER TABLE notification_history ENABLE ROW LEVEL SECURITY;
+
+-- Allow insert for service role
+CREATE POLICY "Allow insert notification history" ON notification_history
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow read notification history" ON notification_history
+    FOR SELECT USING (true);
+
