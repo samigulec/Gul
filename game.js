@@ -683,17 +683,12 @@ async function getPendingWinnings(address) {
 
 // Claim winnings from contract
 async function claimWinnings() {
-    if (!walletAddress) {
-        showSpinStatus('Please connect your wallet first', true);
-        setTimeout(hideSpinStatus, 3000);
-        return;
-    }
-
     showSpinStatus('Claiming winnings...');
 
     try {
         const toAddress = String(SPINON_CONTRACT_ADDRESS).toLowerCase();
 
+        // Method 1: Use Farcaster SDK wallet
         if (sdk?.wallet?.sendTransaction) {
             const result = await sdk.wallet.sendTransaction({
                 chainId: `eip155:${BASE_CHAIN_ID}`,
@@ -709,27 +704,28 @@ async function claimWinnings() {
             return result;
         }
 
-        const provider = sdk?.wallet?.getEthereumProvider?.() || sdk?.wallet?.ethProvider || window.ethereum;
-        if (!provider) {
-            throw new Error('No wallet provider available');
+        // Method 2: Use window.ethereum
+        const provider = window.ethereum;
+        if (provider && typeof provider.request === 'function' && walletAddress) {
+            const txParams = {
+                from: walletAddress.toLowerCase(),
+                to: toAddress,
+                value: '0x0',
+                data: CLAIM_WINNINGS_SELECTOR
+            };
+
+            const txHash = await provider.request({
+                method: 'eth_sendTransaction',
+                params: [txParams]
+            });
+
+            console.log('Claim transaction hash:', txHash);
+            showSpinStatus('Winnings claimed successfully! 🎉');
+            setTimeout(hideSpinStatus, 3000);
+            return txHash;
         }
 
-        const txParams = {
-            from: walletAddress.toLowerCase(),
-            to: toAddress,
-            value: '0x0',
-            data: CLAIM_WINNINGS_SELECTOR
-        };
-
-        const txHash = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [txParams]
-        });
-
-        console.log('Claim transaction hash:', txHash);
-        showSpinStatus('Winnings claimed successfully! 🎉');
-        setTimeout(hideSpinStatus, 3000);
-        return txHash;
+        throw new Error('No wallet available. Please open in Warpcast.');
     } catch (error) {
         console.error('Claim winnings failed:', error);
         showSpinStatus(error.message || 'Claim failed', true);
@@ -749,75 +745,79 @@ async function executeContractSpin() {
 
     console.log('Transaction params:', { to: toAddress, value: hexValue, data: spinFunctionData });
 
+    // Method 1: Use Farcaster SDK wallet (primary for Farcaster frames)
     if (sdk?.wallet?.sendTransaction) {
-        try {
-            console.log('Using sdk.wallet.sendTransaction');
-            const result = await sdk.wallet.sendTransaction({
-                chainId: `eip155:${BASE_CHAIN_ID}`,
-                transaction: {
-                    to: toAddress,
-                    value: hexValue,
-                    data: spinFunctionData
-                }
-            });
-            console.log('SDK sendTransaction result:', result);
-            if (result?.transactionHash) {
-                return result.transactionHash;
+        console.log('Using sdk.wallet.sendTransaction');
+        const result = await sdk.wallet.sendTransaction({
+            chainId: `eip155:${BASE_CHAIN_ID}`,
+            transaction: {
+                to: toAddress,
+                value: hexValue,
+                data: spinFunctionData
             }
-            if (typeof result === 'string') {
-                return result;
-            }
-        } catch (e) {
-            console.error('SDK sendTransaction error:', e);
-            throw new Error(e.message || 'Transaction rejected');
+        });
+        console.log('SDK sendTransaction result:', result);
+        
+        // Handle various response formats
+        if (result?.transactionHash) {
+            return result.transactionHash;
         }
-    }
-
-    let provider = sdk?.wallet?.getEthereumProvider?.() || sdk?.wallet?.ethProvider || window.ethereum;
-
-    if (!provider) {
-        throw new Error('No wallet provider available');
-    }
-
-    let fromAddress = walletAddress;
-
-    if (!fromAddress) {
-        try {
-            const accounts = await provider.request({ method: 'eth_accounts' });
-            console.log('Accounts:', accounts);
-            if (accounts && accounts.length > 0) {
-                fromAddress = accounts[0];
-            } else {
-                const requestedAccounts = await provider.request({ method: 'eth_requestAccounts' });
-                if (requestedAccounts && requestedAccounts.length > 0) {
-                    fromAddress = requestedAccounts[0];
-                }
-            }
-        } catch (e) {
-            console.log('Account request error:', e);
+        if (result?.hash) {
+            return result.hash;
         }
+        if (typeof result === 'string') {
+            return result;
+        }
+        // If we get here, transaction was likely sent but we don't have hash
+        return 'transaction_sent';
     }
 
-    if (!fromAddress) {
-        throw new Error('No wallet address available');
+    // Method 2: Use window.ethereum (for standard browsers with MetaMask etc.)
+    const provider = window.ethereum;
+    if (provider && typeof provider.request === 'function') {
+        let fromAddress = walletAddress;
+
+        if (!fromAddress) {
+            try {
+                const accounts = await provider.request({ method: 'eth_accounts' });
+                console.log('Accounts:', accounts);
+                if (accounts && accounts.length > 0) {
+                    fromAddress = accounts[0];
+                } else {
+                    const requestedAccounts = await provider.request({ method: 'eth_requestAccounts' });
+                    if (requestedAccounts && requestedAccounts.length > 0) {
+                        fromAddress = requestedAccounts[0];
+                    }
+                }
+            } catch (e) {
+                console.log('Account request error:', e);
+            }
+        }
+
+        if (!fromAddress) {
+            throw new Error('No wallet address available');
+        }
+
+        const txParams = {
+            from: String(fromAddress).toLowerCase(),
+            to: toAddress,
+            value: hexValue,
+            data: spinFunctionData
+        };
+
+        console.log('Final tx params:', txParams);
+
+        const txHash = await provider.request({
+            method: 'eth_sendTransaction',
+            params: [txParams]
+        });
+
+        console.log('Transaction hash:', txHash);
+        return txHash;
     }
 
-    const txParams = {
-        from: String(fromAddress).toLowerCase(),
-        to: toAddress,
-        value: hexValue,
-        data: spinFunctionData
-    };
-
-    console.log('Final tx params:', txParams);
-
-    const txHash = await provider.request({
-        method: 'eth_sendTransaction',
-        params: [txParams]
-    });
-
-    console.log('Transaction hash:', txHash);
-    return txHash;
+    // No wallet available
+    throw new Error('No wallet available. Please open in Warpcast or connect MetaMask.');
 }
 
 function showSpinStatus(message, isError = false) {
